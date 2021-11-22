@@ -6,17 +6,17 @@
 
 using namespace std::string_literals;
 
-std::string buffer = "";
+std::vector<std::string> buffer;
 void bufHandler(char *buf){
-    // When first char of buf has text (no space), we got a new packet
-    if(buf[0] != ' '){
+    // When first char of buf has text (no tab), we got a new packet
+    if(buf[0] != '\t'){
         // Submit the just-read text-packet
-        textPacketHandler(buffer);
-        buffer = buf;
-    }else{
-        // Append part-packet
-        buffer += "\n"s + buf;
+        if(buffer.size() != 0) textPacketHandler(buffer);
+        buffer = std::vector<std::string>();
     }
+
+    // Append part-packet
+    buffer.push_back(buf);
 }
 
 #endif /* C251BA62_6D80_4033_86B6_61F184E6F250 */
