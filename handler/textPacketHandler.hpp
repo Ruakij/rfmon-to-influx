@@ -30,13 +30,18 @@ const std::unordered_map<std::string, PacketType> PACKET_TYPE_MAP({
 });
 
 void parseHeader(Packet &packet, const std::vector<std::string> &textPacket);
+void parsePayload(Packet &packet, const std::vector<std::string> &textPacket);
+
 void textPacketHandler(const std::vector<std::string> textPacket){
     /// Here we have to parse the packet
     // Create empty packet
     Packet packet;
 
     parseHeader(packet, textPacket);
+    parsePayload(packet, textPacket);
 }
+
+
 void parseHeader(Packet &packet, const std::vector<std::string> &textPacket){
     const std::string textHeader = textPacket[0];
 
@@ -149,7 +154,24 @@ void parseHeader(Packet &packet, const std::vector<std::string> &textPacket){
 }
 
 
-    // 
+void parsePayload(Packet &packet, const std::vector<std::string> &textPacket){
+
+    // Expect max of 16byte per line of payload
+    unsigned int payloadSize = 16*(textPacket.size()-1);
+
+    // Go through last line
+    int line = textPacket.size()-1, charPos;
+    for(int f=0; f<8*2; ++f){
+        charPos = 10 + (f/2.0*5);
+
+        if(textPacket[line][charPos] == ' ') {    // When our char is space, no more data is present
+            // Set size
+            payloadSize = 16*(textPacket.size()-2)+f;
+            break;
+        }
+    }
+    
+    packet.payloadSize = payloadSize;
 }
 
 #endif /* EE781A91_6D07_47AC_B3C4_F99E29F3731F */
