@@ -4,7 +4,7 @@
 #include <time.h>
 
 struct Packet {
-    time_t timestamp;
+    uint64_t timestampMicros;
 
     char srcMac[17];
     char dstMac[17];
