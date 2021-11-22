@@ -3,7 +3,7 @@
 
 #include "../DTO/packet.hpp"
 
-void packetHandler(Packet packet){
+void packetHandler(const Packet &packet){
     
 }
 
