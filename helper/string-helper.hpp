@@ -17,4 +17,18 @@ std::vector<std::string> split(const std::string& s, char delimiter)
    return tokens;
 }
 
+char hex_char_to_int( char c ) {
+    unsigned result = -1;
+    if( ('0' <= c) && (c <= '9') ) {
+        result = c - '0';
+    }
+    else if( ('A' <= c) && (c <= 'F') ) {
+        result = 10 + c - 'A';
+    }
+    else if( ('a' <= c) && (c <= 'f') ) {
+        result = 10 + c - 'a';
+    }
+    return result;
+}
+
 #endif /* F7CFE6A7_34BF_4E04_94CF_DB8374980631 */
