@@ -8,6 +8,7 @@ struct Packet {
 
     std::string srcMac;
     std::string dstMac;
+    std::string bssid;
 
     unsigned int payloadSize;
     
