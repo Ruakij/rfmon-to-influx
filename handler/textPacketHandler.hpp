@@ -3,6 +3,9 @@
 
 #include <string>
 #include "../DTO/packet.hpp"
+#include "../DTO/beaconPacket.hpp"
+#include "../DTO/probeRequestPacket.hpp"
+#include "../DTO/probeResponsePacket.hpp"
 #include <vector>
 #include <sstream>
 #include <locale>
@@ -12,6 +15,8 @@
 #include "../helper/find.hpp"
 #include "../helper/vector-stats.hpp"
 #include <unordered_map>
+
+using namespace std::string_literals;
 
 const std::unordered_map<std::string, PacketType> PACKET_TYPE_MAP({
     {"Beacon", PacketType::Beacon},
@@ -100,6 +105,42 @@ void textPacketHandler(const std::vector<std::string> textPacket){
     }
     packet.type = type;
 
+    // Read data for specializations
+    if(type == PacketType::Beacon){
+        // Create BeaconPacket from packet
+        BeaconPacket beaconPacket = BeaconPacket(packet);
+        packet = beaconPacket;      // Overwrite packet
+
+        // Find ssid
+        int start = textHeader.find('(')+1;
+        std::string ssid = textHeader.substr(start, textHeader.find(')')-start);
+
+        // Write to packet
+        beaconPacket.ssid = ssid;
+    }
+    else if (type == PacketType::ProbeRequest){
+        // Create ProbeRequestPacket from packet
+        ProbeRequestPacket probeRequestPacket = ProbeRequestPacket(packet);
+        packet = probeRequestPacket;      // Overwrite packet
+
+        // Find probe-request
+        int start = textHeader.find('(')+1;
+        std::string requestSsid = textHeader.substr(start, textHeader.find(')')-start);
+
+        // Write to packet
+        probeRequestPacket.requestSsid = requestSsid;
+    }
+    else if (type == PacketType::ProbeResponse){
+        // Create ProbeResponsePacket from packet
+        ProbeResponsePacket probeResponsePacket = ProbeResponsePacket(packet);
+        packet = probeResponsePacket;      // Overwrite packet
+
+        // Find probe-request
+        int start = textHeader.find('(')+1;
+        std::string responseSsid = textHeader.substr(start, textHeader.find(')')-start);
+
+        // Write to packet
+        probeResponsePacket.responseSsid = responseSsid;
     }
 
     // 
