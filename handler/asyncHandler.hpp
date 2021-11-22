@@ -6,11 +6,12 @@
 #include "bufHandler.hpp"
 
 void asyncHandler(char *buf){
-        // Create a copy of buf for our thread
-        char bufCopy[265];
-        strcpy(buf, bufCopy);
+    // Create a copy of buf for our thread
+    char bufCopy[265];
+    strcpy(bufCopy, buf);
 
-        // \/ Surpress unused warning
-        (void)std::async(std::launch::async, bufHandler, bufCopy);
-    }
+    // \/ Surpress unused warning
+    (void)std::async(std::launch::async, bufHandler, bufCopy);
+}
+
 #endif /* EFFCCB40_3639_4BD4_9649_302F05987909 */
