@@ -7,7 +7,7 @@
 #include <sstream>
 #include <locale>
 #include <iomanip>
-#include "../helper/split.hpp"
+#include "../helper/string-helper.hpp"
 #include "../helper/timestampConvert.hpp"
 #include "../helper/find.hpp"
 #include "../helper/vector-stats.hpp"
