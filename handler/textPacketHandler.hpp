@@ -54,7 +54,15 @@ void textPacketHandler(std::vector<std::string> textPacket){
 
     int raIndex = findContains(headerData, "RA:", 1);
     std::string rAddr = (raIndex != -1) ? headerData[raIndex].substr("RA:"s.length()) : "";
-    
+
+    // Depending of when which address-fields are actually set, choose which ones to use
+    if(sAddr == "" && tAddr != "") sAddr = tAddr;
+    if(dAddr == "" && rAddr != "") dAddr = rAddr;
+
+    // Set addresses to packet
+    packet.srcMac = sAddr;
+    packet.dstMac = dAddr;
+    packet.bssid = bssidAddr;
 }
 
 #endif /* EE781A91_6D07_47AC_B3C4_F99E29F3731F */
