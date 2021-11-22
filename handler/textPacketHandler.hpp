@@ -29,11 +29,15 @@ const std::unordered_map<std::string, PacketType> PACKET_TYPE_MAP({
     {"BA", PacketType::BlockAcknowledgment}
 });
 
+void parseHeader(Packet &packet, const std::vector<std::string> &textPacket);
 void textPacketHandler(const std::vector<std::string> textPacket){
     /// Here we have to parse the packet
     // Create empty packet
     Packet packet;
 
+    parseHeader(packet, textPacket);
+}
+void parseHeader(Packet &packet, const std::vector<std::string> &textPacket){
     const std::string textHeader = textPacket[0];
 
     const std::vector<std::string> headerData = split(textHeader, ' ');
@@ -142,6 +146,8 @@ void textPacketHandler(const std::vector<std::string> textPacket){
         // Write to packet
         probeResponsePacket.responseSsid = responseSsid;
     }
+}
+
 
     // 
 }
