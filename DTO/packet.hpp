@@ -3,6 +3,19 @@
 
 #include <string>
 
+enum PacketType {
+    Beacon,
+    ProbeRequest,
+    ProbeResponse,
+    Data,
+    RequestToSend,
+    ClearToSend,
+    Acknowledgment,
+    BlockAcknowledgment,
+    NoData,
+    Unknown
+};
+
 struct Packet {
     uint64_t timestampMicros;
 
@@ -16,7 +29,7 @@ struct Packet {
     unsigned int frequency;
     unsigned char dataRate;
 
-    std::string type;
+    PacketType type;
 };
 
 #endif /* C42FA9F6_8CF3_453F_8FA0_918E543DCD59 */
