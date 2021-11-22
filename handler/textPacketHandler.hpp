@@ -10,6 +10,19 @@
 #include "../helper/split.hpp"
 #include "../helper/timestampConvert.hpp"
 #include "../helper/find.hpp"
+#include "../helper/vector-stats.hpp"
+#include <unordered_map>
+
+const std::unordered_map<std::string, PacketType> PACKET_TYPE_MAP({
+    {"Beacon", PacketType::Beacon},
+    {"Probe Request", PacketType::ProbeRequest},
+    {"Probe Response", PacketType::ProbeResponse},
+    {"Data", PacketType::Data},
+    {"Request-To-Send", PacketType::RequestToSend},
+    {"Clear-To-Send", PacketType::ClearToSend},
+    {"Acknowledgment", PacketType::Acknowledgment},
+    {"BA", PacketType::BlockAcknowledgment}
+});
 
 void textPacketHandler(std::vector<std::string> textPacket){
     /// Here we have to parse the packet
@@ -63,6 +76,26 @@ void textPacketHandler(std::vector<std::string> textPacket){
     packet.srcMac = sAddr;
     packet.dstMac = dAddr;
     packet.bssid = bssidAddr;
+
+    // Identify type of packet
+    //  -> comes right after the addresses
+    int typeIndex = max(std::vector({saIndex, daIndex, bssidIndex, taIndex, raIndex}))+1;
+    PacketType type = PacketType::Unknown;
+    if(typeIndex == headerData.size()) type = PacketType::NoData;
+    else {
+        std::string textType = headerData[typeIndex];
+
+        // Check for incomplete types
+        if(textType == "Probe"){
+            textType += " "+ headerData[typeIndex+1];
+        }
+
+        // If type is in map, use map-value, otherwise keep default
+        if(PACKET_TYPE_MAP.find(textType) != PACKET_TYPE_MAP.end())
+            type = PACKET_TYPE_MAP[textType];
+    }
+
+    // 
 }
 
 #endif /* EE781A91_6D07_47AC_B3C4_F99E29F3731F */
