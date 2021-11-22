@@ -62,8 +62,8 @@ void textPacketHandler(std::vector<std::string> textPacket){
     int bssidIndex = findContains(headerData, "BSSID:", 1);
     std::string bssidAddr = (bssidIndex != -1) ? headerData[bssidIndex].substr("BSSID:"s.length()) : "";
 
-    int taIndex = findContains(headerData, "SA:", 1);
-    std::string tAddr = (taIndex != -1) ? headerData[taIndex].substr("SA:"s.length()) : "";
+    int taIndex = findContains(headerData, "TA:", 1);
+    std::string tAddr = (taIndex != -1) ? headerData[taIndex].substr("TA:"s.length()) : "";
 
     int raIndex = findContains(headerData, "RA:", 1);
     std::string rAddr = (raIndex != -1) ? headerData[raIndex].substr("RA:"s.length()) : "";
