@@ -24,7 +24,7 @@ const std::unordered_map<std::string, PacketType> PACKET_TYPE_MAP({
     {"BA", PacketType::BlockAcknowledgment}
 });
 
-void textPacketHandler(std::vector<std::string> textPacket){
+void textPacketHandler(const std::vector<std::string> textPacket){
     /// Here we have to parse the packet
     // Create empty packet
     Packet packet;
