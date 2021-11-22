@@ -17,8 +17,8 @@ std::vector<std::string> split(const std::string& s, char delimiter)
    return tokens;
 }
 
-char hex_char_to_int( char c ) {
-    unsigned result = -1;
+char hex_char_to_int(const char &c) {
+    unsigned char result = 0;
     if( ('0' <= c) && (c <= '9') ) {
         result = c - '0';
     }
