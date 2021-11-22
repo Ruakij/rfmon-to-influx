@@ -15,6 +15,18 @@ enum PacketType {
     NoData,
     Unknown
 };
+const std::array<const char*, 10> PACKET_TYPE_NAMES({{
+    "Beacon",
+    "Probe Request",
+    "Probe Response",
+    "Data",
+    "Request to send",
+    "Clear to send",
+    "Acknowledgment",
+    "BlockAcknowledgment",
+    "NoData",
+    "Unknown"
+}});
 
 struct Packet {
     uint64_t timestampMicros;
