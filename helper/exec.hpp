@@ -8,7 +8,7 @@
 /// @param cmd is the command
 /// @param handler is the handler(char*)-function
 /// @return Return-code form command
-int exec(const char* cmd, const int *(handler)(char*) = nullptr){
+int exec(const char* cmd, void (*handler)(char*) = nullptr){
     const int buf_size = 256;
     char buf[buf_size];
 
