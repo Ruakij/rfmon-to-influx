@@ -14,6 +14,7 @@
 #include "../helper/find.hpp"
 #include "../helper/vector-stats.hpp"
 #include <unordered_map>
+#include "./packetHandler.hpp"
 
 using namespace std::string_literals;
 
@@ -38,6 +39,8 @@ void textPacketHandler(const std::vector<std::string> textPacket){
 
     parseHeader(packet, textPacket);
     parsePayload(packet, textPacket);
+
+    packetHandler(packet);
 }
 
 
