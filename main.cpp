@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string>
 #include "./helper/exec.hpp"
-#include "./handler/asyncHandler.hpp"
+#include "./handler/bufHandler.hpp"
 
 const std::string tcpdump_baseCmd = "tcpdump -vvv -e -n -X -s0 -i ";
 
@@ -15,7 +15,7 @@ int main(int argc, char *args[]){
         exit(1);
     }
     
-    int exitCode = exec(tcpdump_cmd.c_str(), &asyncHandler);
+    int exitCode = exec(tcpdump_cmd.c_str(), &bufHandler);
 
     if(exitCode){
         fprintf(stderr, "\ntcpdump exited with non-zero ExitCode: %d\n Something went wrong! Check tcpdump-output for more information.\n", exitCode);
