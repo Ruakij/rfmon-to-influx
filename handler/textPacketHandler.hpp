@@ -92,7 +92,14 @@ void textPacketHandler(const std::vector<std::string> textPacket){
 
         // If type is in map, use map-value, otherwise keep default
         if(PACKET_TYPE_MAP.find(textType) != PACKET_TYPE_MAP.end())
-            type = PACKET_TYPE_MAP[textType];
+            type = PACKET_TYPE_MAP.at(textType);
+        
+        if(type == PacketType::Unknown){
+            fprintf(stderr, "Unknown package-type: %s\n", textType.c_str());
+        }
+    }
+    packet.type = type;
+
     }
 
     // 
