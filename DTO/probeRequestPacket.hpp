@@ -4,9 +4,15 @@
 #include "./packet.hpp"
 #include <string>
 
-class ProbeRequestPacket : Packet{
+class ProbeRequestPacket : public Packet{
 public:
-    std::string requestSSID;
+    ProbeRequestPacket()
+    {}
+    ProbeRequestPacket(const Packet &packet)
+        : Packet(packet)
+    {}
+
+    std::string requestSsid;
 };
 
 #endif /* CD2BF199_8153_4F10_A85C_50883FAD66A8 */

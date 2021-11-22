@@ -4,8 +4,14 @@
 #include "./packet.hpp"
 #include <string>
 
-class BeaconPacket : Packet{
+class BeaconPacket : public Packet{
 public:
+    BeaconPacket()
+    {}
+    BeaconPacket(const Packet &packet)
+        : Packet(packet)
+    {}
+
     std::string ssid;
 };
 
