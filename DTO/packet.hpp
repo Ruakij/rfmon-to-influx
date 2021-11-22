@@ -14,6 +14,8 @@ struct Packet {
     char signal;
     unsigned int frequency;
     unsigned char dataRate;
+
+    std::string type;
 };
 
 #endif /* C42FA9F6_8CF3_453F_8FA0_918E543DCD59 */
