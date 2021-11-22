@@ -7,18 +7,7 @@
 #include <sstream>
 #include <locale>
 #include <iomanip>
-
-std::vector<std::string> split(const std::string& s, char delimiter)
-{
-   std::vector<std::string> tokens;
-   std::string token;
-   std::istringstream tokenStream(s);
-   while (std::getline(tokenStream, token, delimiter))
-   {
-      tokens.push_back(token);
-   }
-   return tokens;
-}
+#include "../helper/split.hpp"
 
 uint64_t convertStringToTimestampMicros(std::string textTimestamp){
     uint64_t timestamp;
@@ -63,7 +52,7 @@ void textPacketHandler(std::vector<std::string> textPacket){
 
     std::string textTimestamp = headerData[0];
     uint64_t timestamp = convertStringToTimestampMicros(textTimestamp);
-    
+
 }
 
 #endif /* EE781A91_6D07_47AC_B3C4_F99E29F3731F */
