@@ -58,8 +58,14 @@ void parseHeader(Packet &packet, const std::vector<std::string> &textPacket){
     packet.frequency = std::stoi(headerData[frequencyIndex]);
 
     int signalIndex = findIs(headerData, "signal", 1, 1);
+    if(signalIndex != -1){
     std::string signalText = headerData[signalIndex].substr(0, 3);
     packet.signal = std::stoi(signalText);
+    }
+    else {
+        fprintf(stderr, "Missing signal-data!\n");
+        packet.signal = -100;
+    }
 
     // Addresses seem complicated at first, but just have many fields which might be available.
     // SA and DA are src- and dst-Addresses
