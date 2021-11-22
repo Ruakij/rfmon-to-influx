@@ -9,7 +9,7 @@ struct Packet {
     std::string srcMac;
     std::string dstMac;
 
-    unsigned int size;
+    unsigned int payloadSize;
     
     char signal;
     unsigned int frequency;
