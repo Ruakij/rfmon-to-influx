@@ -6,6 +6,7 @@
 
 class BeaconPacket : Packet{
 public:
+    std::string ssid;
 };
 
 #endif /* FDDB997A_BCD3_4056_BFEA_9FF6A548DACF */
