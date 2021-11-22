@@ -5,7 +5,7 @@
 #include <string>
 
 class BeaconPacket : Packet{
-    std::string SSID;
+public:
 };
 
 #endif /* FDDB997A_BCD3_4056_BFEA_9FF6A548DACF */

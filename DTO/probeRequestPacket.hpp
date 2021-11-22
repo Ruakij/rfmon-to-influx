@@ -5,6 +5,7 @@
 #include <string>
 
 class ProbeRequestPacket : Packet{
+public:
     std::string requestSSID;
 };
 
