@@ -1,3 +1,4 @@
+const logger = require.main.require("./helper/logger.js")("RegexBlockStream");
 const { Transform } = require('stream')
 
 /**
@@ -22,12 +23,11 @@ class RegexBlockStream extends Transform{
         this.matcher = matcher;
         this.withholdLastBlock = withholdLastBlock;
         this.matchAllOnFlush = matchAllOnFlush;
-
-        this._buffer = "";
     }
 
     _transform(chunk, encoding, next){
-        chunk = this._buffer + chunk;     // Add previous buffer to current chunk
+        chunk = this.readableBuffer.length? this.readableBuffer.join() + chunk: chunk;     // Add previous buffer to current chunk
+        this.readableBuffer.length && this.readableBuffer.clear();      // Clear buffer once we read it
 
         let matches = chunk.match(this.matcher);    // Match
         if(matches){
@@ -35,7 +35,7 @@ class RegexBlockStream extends Transform{
             chunk = this._writeMatches(matches, chunk);
         }
         
-        this._buffer = chunk;   // Store remaining data in buffer
+        this.readableBuffer.push(chunk);   // Store remaining data in buffer
         next();     // Get next chunk
     }
 
@@ -51,8 +51,9 @@ class RegexBlockStream extends Transform{
 
     _flush(next){
         if(matchAllOnFlush){    // When requested, we'll match one last time over the remaining buffer
-            let matches = this._buffer.match(this.matcher);    // Match remaining buffer
-            _writeMatches(this._buffer);    // Write matches including last element
+            let chunk = this.readableBuffer.toString();
+            let matches = chunk.match(this.matcher);    // Match remaining buffer
+            _writeMatches(matches);    // Write matches including last element
         }
         
         next();     // Tell system we are done
