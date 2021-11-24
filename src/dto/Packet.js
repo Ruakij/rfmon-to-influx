@@ -14,6 +14,7 @@ const PacketType = {
 
 class Packet{
     timestampMicros;
+    isRetry;
 
     srcMac;
     dstMac;

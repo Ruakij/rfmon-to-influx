@@ -48,6 +48,8 @@ class PacketStreamFactory extends Transform{
         // Convert time to epoch-micros         Unfortunately luxon doesnt use micros, but millis as smallest time-unit requiring some "hacks"
         packet.timestampMicros = DateTime.fromISO(data.slice(0, 12)).toSeconds() + data.slice(12, 15)/1000000;
 
+        packet.isRetry = data.match(/(^| )Retry($| )/i)? true: false;
+
         packet.dataRate = Number(data.match(/(^| )([0-9]+(\.[0-9]+)?) Mb\/s($| )/i)?.[2]) || null;
         packet.frequency = Number(data.match(/(^| )([0-9]{4}) MHz($| )/i)?.[2]) || null;
 
