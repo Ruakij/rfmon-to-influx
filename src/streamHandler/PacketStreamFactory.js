@@ -12,8 +12,7 @@ const PACKET_TYPE_MAP = {
     "Request-To-Send":  PacketType.RequestToSend,
     "Clear-To-Send":    PacketType.ClearToSend,
     "Acknowledgment":   PacketType.Acknowledgment,
-    "BA":               PacketType.BlockAcknowledgment,
-    "CD":               PacketType.ContentionFreePeriod
+    "BA":               PacketType.BlockAcknowledgment
 };
 const PACKET_TYPES_REGEX = Object.keys(PACKET_TYPE_MAP).join('|');
 
