@@ -1,5 +1,6 @@
 const log4js = require("log4js");
 const { requireEnvVars } = require("./helper/env.js");
+const { exit } = require("process");
 
 /// Setup logger
 const logger = log4js.getLogger("main");
