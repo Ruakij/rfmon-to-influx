@@ -2,6 +2,7 @@ const logger = require.main.require("./helper/logger.js")("PacketStreamFactory")
 const { Transform } = require('stream');
 const { DateTime } = require("luxon");
 const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket, DisassociationPacket, HandshakePacket, HandshakeStage } = require.main.require('./dto/Packet.js');
+const hexConv = require.main.require("./helper/hexConverter.js");
 
 const PACKET_TYPE_MAP = {
     "Beacon":           PacketType.Beacon,
@@ -108,8 +109,41 @@ class PacketStreamFactory extends Transform{
     }
 
     _handlePayload(packet, data){
+        data = data.join('');
+
         // Get payload-Hex-Data. If there is no data: empty
-        packet.payloadData = data.join('').match(/(?<=\s)([A-F0-9]{1,4}(?!(\.|x)))/igm)?.join('') ?? '';
+        packet.payloadData = hexConv.hexToBytes(data.match(/(?<=\s)([A-F0-9]{1,4}(?!(\.|x)))/igm)?.join('') ?? '');
+
+        // Cover special cases with more data
+        let newPacket;
+        switch(packet.packetType){
+            case PacketType.Handshake:
+                newPacket = new HandshakePacket();
+
+                // Read key-information
+                let keyInfoRaw = (packet.payloadData[0x5]<<0x8) + packet.payloadData[0x6];
+                let keyInfo = {
+                    "KeyDescriptorVersion": keyInfoRaw>>0 & 0b111,
+                    "KeyType":  keyInfoRaw>>3 & 0b1,
+                    "KeyIndex": keyInfoRaw>>4 & 0b11,
+                    "Install":  keyInfoRaw>>6 & 0b1,
+                    "KeyACK":   keyInfoRaw>>7 & 0b1,
+                    "KeyMIC":   keyInfoRaw>>8 & 0b1,
+                    "Secure":   keyInfoRaw>>9 & 0b1,
+                    "Error":    keyInfoRaw>>10 & 0b1,
+                    "Request":  keyInfoRaw>>11 & 0b1,
+                    "EncryptedKeyData": keyInfoRaw>>12 & 0b1,
+                    "SMKMessage":       keyInfoRaw>>13 & 0b1,
+                };
+
+                newPacket.handshakeStage =  (!keyInfo.Install &&  keyInfo.KeyACK && !keyInfo.KeyMIC && !keyInfo.Secure)? HandshakeStage[1] :
+                                            (!keyInfo.Install && !keyInfo.KeyACK &&  keyInfo.KeyMIC && !keyInfo.Secure)? HandshakeStage[2] :
+                                            ( keyInfo.Install &&  keyInfo.KeyACK &&  keyInfo.KeyMIC &&  keyInfo.Secure)? HandshakeStage[3] :
+                                            (!keyInfo.Install && !keyInfo.KeyACK &&  keyInfo.KeyMIC &&  keyInfo.Secure)? HandshakeStage[4] :
+                                            null;
+                break;
+        }
+        if(newPacket) packet = Object.assign(newPacket, packet);
 
         return packet;
     }
