@@ -3,6 +3,7 @@ const PacketType = {
     ProbeRequest: 'ProbeRequest',
     ProbeResponse: 'ProbeResponse',
     Data: 'Data',
+    MoreData: 'MoreData',
     RequestToSend: 'RequestToSend',
     ClearToSend: 'ClearToSend',
     Acknowledgment: 'Acknowledgment',
