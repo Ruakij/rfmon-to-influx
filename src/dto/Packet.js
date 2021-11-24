@@ -9,6 +9,7 @@ const PacketType = {
     Acknowledgment: 'Acknowledgment',
     BlockAcknowledgment: 'BlockAcknowledgment',
     NoData: 'NoData',
+    ContentionFreePeriod: 'ContentionFreePeriod',
     Unknown: 'Unknown'
 }
 
