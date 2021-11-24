@@ -94,12 +94,12 @@ class PacketStreamFactory extends Transform{
 
             case PacketType.AssociationResponse:
                 newPacket = new AssociationResponsePacket();
-                newPacket.associationIsSuccessful = data.match(/(?<=(^|\s)Assoc\sResponse\s.{0,30})Successful(?=\s|$)/img) ? true : false;
+                newPacket.associationIsSuccessful = data.match(/(?<=(^|\s)Assoc\sResponse\s.{0,30})Successful(?=\s|$)/i) ? true : false;
                 break;
 
             case PacketType.Disassociation:
                 newPacket = new DisassociationPacket();
-                newPacket.disassociationReason = data.match(/(?<=(^|\s)Disassociation:\s).*?(?=\sBSS|$)/img)?.[0] ?? null;
+                newPacket.disassociationReason = data.match(/(?<=(^|\s)Disassociation:\s).*$/i)?.[0] ?? null;
                 break;
         }
         if(newPacket) packet = Object.assign(newPacket, packet);   // Use new, more specific, packet and copy old data over
