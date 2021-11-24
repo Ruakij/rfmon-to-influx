@@ -101,7 +101,7 @@ class PacketStreamFactory extends Transform{
                 newPacket.disassociationReason = data.match(/(?<=(^|\s)Disassociation:\s).*?(?=\sBSS|$)/img)?.[0] ?? null;
                 break;
         }
-        if(newPacket) packet = Object.assign(new newPacket, packet);   // Use new, more specific, packet and copy old data over
+        if(newPacket) packet = Object.assign(newPacket, packet);   // Use new, more specific, packet and copy old data over
     }
 
     _handlePayload(packet, data){
