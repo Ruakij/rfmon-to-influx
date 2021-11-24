@@ -33,7 +33,7 @@ class Packet{
 
     payloadData;
     get payloadSize(){
-        return payloadData.length/2;
+        return this.payloadData.length;
     }
 
     packetType;
