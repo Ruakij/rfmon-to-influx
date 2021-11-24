@@ -1,7 +1,7 @@
 const logger = require.main.require("./helper/logger.js")("PacketStreamFactory");
 const { Transform } = require('stream');
 const { DateTime } = require("luxon");
-const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket, DisassociationPacket } = require.main.require('./dto/Packet.js');
+const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket, DisassociationPacket, HandshakePacket, HandshakeStage } = require.main.require('./dto/Packet.js');
 
 const PACKET_TYPE_MAP = {
     "Beacon":           PacketType.Beacon,
@@ -17,6 +17,7 @@ const PACKET_TYPE_MAP = {
     "Assoc Request":    PacketType.AssociationRequest,
     "Assoc Response":   PacketType.AssociationResponse,
     "Disassociation:":  PacketType.Disassociation,
+    "EAPOL":            PacketType.Handshake,
 };
 const PACKET_TYPES_REGEX = Object.keys(PACKET_TYPE_MAP).join('|');
 

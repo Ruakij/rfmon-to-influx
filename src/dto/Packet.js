@@ -13,6 +13,7 @@ const PacketType = {
     AssociationRequest: 'AssociationRequest',
     AssociationResponse: 'AssociationResponse',
     Disassociation: 'Disassociation',
+    Handshake: 'Handshake',
     Unknown: 'Unknown'
 }
 
@@ -65,6 +66,17 @@ class DisassociationPacket extends Packet{
     disassociationReason;
 }
 
+
+const HandshakeStage = {
+    1: '1',
+    2: '2',
+    3: '3',
+    4: '4'
+}
+class HandshakePacket extends Packet{
+    handshakeStage;
+}
+
 // Specify exports
 module.exports = {
     PacketType,
@@ -77,4 +89,6 @@ module.exports = {
     AuthenticationPacket,
     AssociationRequestPacket,
     AssociationResponsePacket,
+    HandshakeStage,
+    HandshakePacket,
 };
