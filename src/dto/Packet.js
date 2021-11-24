@@ -24,6 +24,8 @@ class Packet{
     frequency;
     dataRate;
 
+    payloadSize;
+
     packetType;
 }
 
