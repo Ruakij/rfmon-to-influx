@@ -4,7 +4,7 @@ const { exit } = require("process");
 
 /// Setup logger
 const logger = log4js.getLogger("main");
-logger.level = process.env.logLevel ?? "INFO";
+logger.level = process.env.LOGLEVEL ?? "INFO";
 
 /// Setup ENVs
 const env = process.env;
