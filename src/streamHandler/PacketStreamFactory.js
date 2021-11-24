@@ -62,6 +62,8 @@ class PacketStreamFactory extends Transform{
         packet.dataRate = Number(data.match(/(^| )([0-9]+(\.[0-9]+)?) Mb\/s($| )/i)?.[2]) || null;
         packet.frequency = Number(data.match(/(^| )([0-9]{4}) MHz($| )/i)?.[2]) || null;
 
+        packet.durationMicros = Number(data.match(/(^| )([0-9]{,4})us($| )/i)?.[2] ?? 0);
+
         packet.signal = Number(data.match(/(^| )(-[0-9]{2})dBm Signal($| )/i)?.[2]) || null;
 
         let packetTypeStr = data.match(new RegExp(`(^|.{80} )(${PACKET_TYPES_REGEX})($| )`, 'i'))?.[2];

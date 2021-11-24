@@ -28,6 +28,8 @@ class Packet{
     frequency;
     dataRate;
 
+    durationMicros;
+
     payloadData;
     get payloadSize(){
         return payloadData.length/2;
