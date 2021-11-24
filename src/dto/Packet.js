@@ -12,6 +12,7 @@ const PacketType = {
     Authentication: 'Authentication',
     AssociationRequest: 'AssociationRequest',
     AssociationResponse: 'AssociationResponse',
+    Disassociation: 'Disassociation',
     Unknown: 'Unknown'
 }
 
@@ -56,6 +57,10 @@ class AuthenticationPacket extends Packet{
 class AssociationRequestPacket extends PacketWithSSID{}
 class AssociationResponsePacket extends Packet{
     associationIsSuccessful;
+}
+
+class DisassociationPacket extends Packet{
+    disassociationReason;
 }
 
 // Specify exports

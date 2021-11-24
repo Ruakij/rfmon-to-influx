@@ -1,7 +1,7 @@
 const logger = require.main.require("./helper/logger.js")("PacketStreamFactory");
 const { Transform } = require('stream');
 const { DateTime } = require("luxon");
-const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket } = require.main.require('./dto/Packet.js');
+const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket, DisassociationPacket } = require.main.require('./dto/Packet.js');
 
 const PACKET_TYPE_MAP = {
     "Beacon":           PacketType.Beacon,
@@ -16,6 +16,7 @@ const PACKET_TYPE_MAP = {
     "Authentication":   PacketType.Authentication,
     "Assoc Request":    PacketType.AssociationRequest,
     "Assoc Response":   PacketType.AssociationResponse,
+    "Disassociation:":  PacketType.Disassociation,
 };
 const PACKET_TYPES_REGEX = Object.keys(PACKET_TYPE_MAP).join('|');
 
@@ -91,6 +92,11 @@ class PacketStreamFactory extends Transform{
             case PacketType.AssociationResponse:
                 newPacket = new AssociationResponsePacket();
                 newPacket.associationIsSuccessful = data.match(/Assoc Response\s.{0,30}Successful(?=\s|$)/img) ? true : false;
+                break;
+
+            case PacketType.Disassociation:
+                newPacket = new DisassociationPacket();
+                newPacket.disassociationReason = data.match(/(?<=(^|\s)Disassociation:\s).*?(?=\sBSS|$)/img)?.[0] ?? null;
                 break;
         }
         if(newPacket) packet = Object.assign(new newPacket, packet);   // Use new, more specific, packet and copy old data over
