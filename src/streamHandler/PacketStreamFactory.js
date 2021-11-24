@@ -45,8 +45,8 @@ class PacketStreamFactory extends Transform{
 
         const lines = chunk.split('\n');
         const header = lines.splice(0, 1)[0];       // Grab first line, 'lines' is now the payload
-        this._handleHeader(packet, header);
-        this._handlePayload(packet, lines);
+        packet = this._handleHeader(packet, header);
+        packet = this._handlePayload(packet, lines);
         
         logger.debug(packet);
 
@@ -102,11 +102,15 @@ class PacketStreamFactory extends Transform{
                 break;
         }
         if(newPacket) packet = Object.assign(newPacket, packet);   // Use new, more specific, packet and copy old data over
+
+        return packet;
     }
 
     _handlePayload(packet, data){
         // Get payload-Hex-Data. If there is no data: empty
         packet.payloadData = data.join('').match(/(?<=\s)([A-F0-9]{1,4}(?!(\.|x)))/igm)?.join('') ?? '';
+
+        return packet;
     }
 }
 
