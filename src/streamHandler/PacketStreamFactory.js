@@ -57,23 +57,23 @@ class PacketStreamFactory extends Transform{
         // Convert time to epoch-micros         Unfortunately luxon doesnt use micros, but millis as smallest time-unit requiring some "hacks"
         packet.timestampMicros = DateTime.fromISO(data.slice(0, 12)).toSeconds() + data.slice(12, 15)/1000000;
 
-        packet.isRetry = data.match(/(^| )Retry($| )/i)? true: false;
+        packet.isRetry = data.match(/(?<=^|\s)Retry(?=$|\s)/i)? true: false;
 
-        packet.dataRate = Number(data.match(/(^| )([0-9]+(\.[0-9]+)?) Mb\/s($| )/i)?.[2]) || null;
-        packet.frequency = Number(data.match(/(^| )([0-9]{4}) MHz($| )/i)?.[2]) || null;
+        packet.dataRate = Number(data.match(/(?<=^|\s)[0-9]+(\.[0-9]+)?(?=\sMb\/?s($|\s))/i)?.[0]) || null;
+        packet.frequency = Number(data.match(/(?<=^|\s)[0-9]{4}(?=\sMHz($|\s))/i)?.[0]) || null;
 
-        packet.durationMicros = Number(data.match(/(^| )([0-9]{,4})us($| )/i)?.[2] ?? 0);
+        packet.durationMicros = Number(data.match(/(?<=^|\s)[0-9]{1,4}(?=us($|\s))/i)?.[0]) || null;
 
-        packet.signal = Number(data.match(/(^| )(-[0-9]{2})dBm Signal($| )/i)?.[2]) || null;
+        packet.signal = Number(data.match(/(?<=^|\s)-[0-9]{2,3}(?=dBm\sSignal($|\s))/i)?.[0]) || null;
 
-        let packetTypeStr = data.match(new RegExp(`(^|.{80} )(${PACKET_TYPES_REGEX})($| )`, 'i'))?.[2];
+        let packetTypeStr = data.match(new RegExp('(?<=^|\\s)('+ PACKET_TYPES_REGEX +')(?=$|\\s)', 'i'))?.[0];
         packet.packetType = packetTypeStr? PACKET_TYPE_MAP[packetTypeStr]: PacketType.Unknown;
         
-        packet.srcMac = data.match(/(^| )(SA|TA):(.{17})($| )/i)?.[3] ?? null;
+        packet.srcMac = data.match(/(?<=(^|\s)(SA|TA):).{17}(?=$|\s)/i)?.[0] ?? null;
 
-        packet.dstMac = data.match(/(^| )(DA|RA):(.{17})($| )/i)?.[3] ?? null;
+        packet.dstMac = data.match(/(?<=(^|\s)(DA|RA):).{17}(?=$|\s)/i)?.[0] ?? null;
         
-        packet.bssid = data.match(/(^| )BSSID:(.{17})($| )/i)?.[2] ?? null;
+        packet.bssid = data.match(/(?<=(^|\s)BSSID:).{17}(?=$|\s)/i)?.[0] ?? null;
 
         // Cover special cases with more data
         let newPacket;
@@ -83,7 +83,7 @@ class PacketStreamFactory extends Transform{
             case PacketType.ProbeResponse:
             case PacketType.AssociationRequest:
                 newPacket = new PacketWithSSID();
-                newPacket.ssid = data.match(new RegExp(`(^| )${packetTypeStr} `+'\\'+`((.{0,32})`+'\\'+`)($| )`, 'i'))?.[2] ?? null;
+                newPacket.ssid = data.match(new RegExp('(?<=(^|\\s)'+ packetTypeStr +'\\s\\().{0,32}(?=\\)($|\\s))', 'i'))?.[0] ?? null;
                 break;
             
             case PacketType.Authentication:
@@ -93,7 +93,7 @@ class PacketStreamFactory extends Transform{
 
             case PacketType.AssociationResponse:
                 newPacket = new AssociationResponsePacket();
-                newPacket.associationIsSuccessful = data.match(/Assoc Response\s.{0,30}Successful(?=\s|$)/img) ? true : false;
+                newPacket.associationIsSuccessful = data.match(/(?<=(^|\s)Assoc\sResponse\s.{0,30})Successful(?=\s|$)/img) ? true : false;
                 break;
 
             case PacketType.Disassociation:
