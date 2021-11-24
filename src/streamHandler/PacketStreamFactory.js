@@ -75,7 +75,9 @@ class PacketStreamFactory extends Transform{
     }
 
     _handlePayload(packet, data){
-        
+        // Get payload-Hex-Data. If there is no data: empty
+        let payloadData = data.join('').match(/(?<=\s)([A-F0-9]{1,4}(?!(\.|x)))/igm)?.join('') ?? '';
+        packet.payloadSize = payloadData.length/2;      // 2 hex-chars = 1 byte
     }
 }
 
