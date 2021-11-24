@@ -121,8 +121,8 @@ class PacketStreamFactory extends Transform{
                 newPacket = new HandshakePacket();
 
                 // Read key-information
-                let keyInfoRaw = (packet.payloadData[0x5]<<0x8) + packet.payloadData[0x6];
-                let keyInfo = {
+                const keyInfoRaw = (packet.payloadData[0x5]<<0x8) + packet.payloadData[0x6];
+                const keyInfo = {
                     "KeyDescriptorVersion": keyInfoRaw>>0 & 0b111,
                     "KeyType":  keyInfoRaw>>3 & 0b1,
                     "KeyIndex": keyInfoRaw>>4 & 0b11,
