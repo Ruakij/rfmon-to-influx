@@ -1,7 +1,7 @@
 const logger = require.main.require("./helper/logger.js")("PacketStreamFactory");
 const { Transform } = require('stream');
 const { DateTime } = require("luxon");
-const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket } = require.main.require('./dto/Packet.js');
+const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType } = require.main.require('./dto/Packet.js');
 
 const PACKET_TYPE_MAP = {
     "Beacon":           PacketType.Beacon,
@@ -12,9 +12,15 @@ const PACKET_TYPE_MAP = {
     "Request-To-Send":  PacketType.RequestToSend,
     "Clear-To-Send":    PacketType.ClearToSend,
     "Acknowledgment":   PacketType.Acknowledgment,
-    "BA":               PacketType.BlockAcknowledgment
+    "BA":               PacketType.BlockAcknowledgment,
+    "Authentication":   PacketType.Authentication,
 };
 const PACKET_TYPES_REGEX = Object.keys(PACKET_TYPE_MAP).join('|');
+
+const AUTHENTICATION_TYPE_MAP = {
+    "(Open System)-1":  AuthenticationType.OpenSystem_1,
+    "(Open System)-2":  AuthenticationType.OpenSystem_2,
+}
 
 /**
  * Read data from text-blocks and convert them to Packet
@@ -72,6 +78,11 @@ class PacketStreamFactory extends Transform{
             case PacketType.ProbeResponse:
                 newPacket = new PacketWithSSID();
                 newPacket.ssid = data.match(new RegExp(`(^| )${packetTypeStr} `+'\\'+`((.{0,32})`+'\\'+`)($| )`, 'i'))?.[2] ?? null;
+                break;
+            
+            case PacketType.Authentication:
+                newPacket = new AuthenticationPacket();
+                newPacket.authenticationType = AUTHENTICATION_TYPE_MAP[data.match(/(?<=(^|\s)Authentication\s).{3,}(?=\:(\s|$))/i)[0]] ?? AuthenticationType.Unknown;
                 break;
         }
         if(newPacket) packet = Object.assign(new newPacket, packet);   // Use new, more specific, packet and copy old data over

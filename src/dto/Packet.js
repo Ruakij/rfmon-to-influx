@@ -9,6 +9,7 @@ const PacketType = {
     Acknowledgment: 'Acknowledgment',
     BlockAcknowledgment: 'BlockAcknowledgment',
     NoData: 'NoData',
+    Authentication: 'Authentication',
     Unknown: 'Unknown'
 }
 
@@ -41,6 +42,14 @@ class BeaconPacket extends PacketWithSSID{}
 class ProbeRequestPacket extends PacketWithSSID{}
 class ProbeResponsePacket extends PacketWithSSID{}
 
+const AuthenticationType = {
+    OpenSystem_1: 'OpenSystem_1',
+    OpenSystem_2: 'OpenSystem_2',
+    Unknown: 'Unknown',
+}
+class AuthenticationPacket extends Packet{
+    authenticationType;
+}
 
 // Specify exports
 module.exports = {
@@ -49,5 +58,7 @@ module.exports = {
     PacketWithSSID,
     BeaconPacket,
     ProbeRequestPacket,
-    ProbeResponsePacket
+    ProbeResponsePacket,
+    AuthenticationType,
+    AuthenticationPacket,
 };
