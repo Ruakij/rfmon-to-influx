@@ -49,30 +49,19 @@ class PacketStreamFactory extends Transform{
         // Convert time to epoch-micros         Unfortunately luxon doesnt use micros, but millis as smallest time-unit requiring some "hacks"
         packet.timestampMicros = DateTime.fromISO(data.slice(0, 12)).toSeconds() + data.slice(12, 15)/1000000;
 
-        packet.dataRate = Number(data.match(/(^| )([0-9]+(\.[0-9]+)?) Mb\/s($| )/i)[2]);
-        packet.frequency = Number(data.match(/(^| )([0-9]{4}) MHz($| )/i)[2]);
+        packet.dataRate = Number(data.match(/(^| )([0-9]+(\.[0-9]+)?) Mb\/s($| )/i)?.[2]) || null;
+        packet.frequency = Number(data.match(/(^| )([0-9]{4}) MHz($| )/i)?.[2]) || null;
 
-        let signalStrMatch = data.match(/(^| )(-[0-9]{2})dBm Signal($| )/i);
-        if(signalStrMatch) packet.signal = Number(signalStrMatch[2]);
-        else packet.signal = -100;
+        packet.signal = Number(data.match(/(^| )(-[0-9]{2})dBm Signal($| )/i)?.[2]) || null;
 
-        let packetTypeStrMatch = data.match(new RegExp(`(^|.{80} )(${PACKET_TYPES_REGEX})($| )`, 'i'));
-        let packetTypeStr;
-        if(packetTypeStrMatch) {
-            packetTypeStr = packetTypeStrMatch[2];
-            packet.packetType = PACKET_TYPE_MAP[packetTypeStr];
-        }
-        else
-            packet.packetType = PacketType.Unknown;
+        let packetTypeStr = data.match(new RegExp(`(^|.{80} )(${PACKET_TYPES_REGEX})($| )`, 'i'))?.[2];
+        packet.packetType = packetTypeStr? PACKET_TYPE_MAP[packetTypeStr]: PacketType.Unknown;
         
-        let srcMacMatch = data.match(/(^| )(SA|TA):(.{17})($| )/i);
-        if(srcMacMatch) packet.srcMac = srcMacMatch[3];
+        packet.srcMac = data.match(/(^| )(SA|TA):(.{17})($| )/i)?.[3] ?? null;
 
-        let dstMacMatch = data.match(/(^| )(DA|RA):(.{17})($| )/i);
-        if(dstMacMatch) packet.dstMac = dstMacMatch[3];
+        packet.dstMac = data.match(/(^| )(DA|RA):(.{17})($| )/i)?.[3] ?? null;
         
-        let bssidMatch = data.match(/(^| )BSSID:(.{17})($| )/i)
-        if(bssidMatch) packet.bssid = bssidMatch[2];
+        packet.bssid = data.match(/(^| )BSSID:(.{17})($| )/i)?.[2] ?? null;
 
         // Cover special cases with more data
         switch(packet.packetType){
@@ -80,7 +69,7 @@ class PacketStreamFactory extends Transform{
             case PacketType.ProbeRequest:
             case PacketType.ProbeResponse:
                 packet = Object.assign(new PacketWithSSID(), packet);   // Create new, more specific, packet and copy old data over
-                packet.ssid = data.match(new RegExp(`(^| )${packetTypeStr} `+'\\'+`((.{0,32})`+'\\'+`)($| )`, 'i'))[2];
+                packet.ssid = data.match(new RegExp(`(^| )${packetTypeStr} `+'\\'+`((.{0,32})`+'\\'+`)($| )`, 'i'))?.[2] ?? null;
                 break;
         }
     }
