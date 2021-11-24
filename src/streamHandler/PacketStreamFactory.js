@@ -1,7 +1,7 @@
 const logger = require.main.require("./helper/logger.js")("PacketStreamFactory");
 const { Transform } = require('stream');
 const { DateTime } = require("luxon");
-const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType } = require.main.require('./dto/Packet.js');
+const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket } = require.main.require('./dto/Packet.js');
 
 const PACKET_TYPE_MAP = {
     "Beacon":           PacketType.Beacon,
@@ -14,6 +14,8 @@ const PACKET_TYPE_MAP = {
     "Acknowledgment":   PacketType.Acknowledgment,
     "BA":               PacketType.BlockAcknowledgment,
     "Authentication":   PacketType.Authentication,
+    "Assoc Request":    PacketType.AssociationRequest,
+    "Assoc Response":   PacketType.AssociationResponse,
 };
 const PACKET_TYPES_REGEX = Object.keys(PACKET_TYPE_MAP).join('|');
 
@@ -76,6 +78,7 @@ class PacketStreamFactory extends Transform{
             case PacketType.Beacon:
             case PacketType.ProbeRequest:
             case PacketType.ProbeResponse:
+            case PacketType.AssociationRequest:
                 newPacket = new PacketWithSSID();
                 newPacket.ssid = data.match(new RegExp(`(^| )${packetTypeStr} `+'\\'+`((.{0,32})`+'\\'+`)($| )`, 'i'))?.[2] ?? null;
                 break;
@@ -83,6 +86,11 @@ class PacketStreamFactory extends Transform{
             case PacketType.Authentication:
                 newPacket = new AuthenticationPacket();
                 newPacket.authenticationType = AUTHENTICATION_TYPE_MAP[data.match(/(?<=(^|\s)Authentication\s).{3,}(?=\:(\s|$))/i)[0]] ?? AuthenticationType.Unknown;
+                break;
+
+            case PacketType.AssociationResponse:
+                newPacket = new AssociationResponsePacket();
+                newPacket.associationIsSuccessful = data.match(/Assoc Response\s.{0,30}Successful(?=\s|$)/img) ? true : false;
                 break;
         }
         if(newPacket) packet = Object.assign(new newPacket, packet);   // Use new, more specific, packet and copy old data over

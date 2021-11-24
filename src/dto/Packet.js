@@ -10,6 +10,8 @@ const PacketType = {
     BlockAcknowledgment: 'BlockAcknowledgment',
     NoData: 'NoData',
     Authentication: 'Authentication',
+    AssociationRequest: 'AssociationRequest',
+    AssociationResponse: 'AssociationResponse',
     Unknown: 'Unknown'
 }
 
@@ -51,6 +53,11 @@ class AuthenticationPacket extends Packet{
     authenticationType;
 }
 
+class AssociationRequestPacket extends PacketWithSSID{}
+class AssociationResponsePacket extends Packet{
+    associationIsSuccessful;
+}
+
 // Specify exports
 module.exports = {
     PacketType,
@@ -61,4 +68,6 @@ module.exports = {
     ProbeResponsePacket,
     AuthenticationType,
     AuthenticationPacket,
+    AssociationRequestPacket,
+    AssociationResponsePacket,
 };
