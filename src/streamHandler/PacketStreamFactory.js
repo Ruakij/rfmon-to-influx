@@ -41,7 +41,6 @@ class PacketStreamFactory extends Transform{
         
         logger.debug(packet);
 
-        this.read();
         next(null, packet);     // Get next chunk
     }
 
