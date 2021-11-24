@@ -24,7 +24,10 @@ class Packet{
     frequency;
     dataRate;
 
-    payloadSize;
+    payloadData;
+    get payloadSize(){
+        return payloadData.length/2;
+    }
 
     packetType;
 }
