@@ -65,14 +65,16 @@ class PacketStreamFactory extends Transform{
         packet.bssid = data.match(/(^| )BSSID:(.{17})($| )/i)?.[2] ?? null;
 
         // Cover special cases with more data
+        let newPacket;
         switch(packet.packetType){
             case PacketType.Beacon:
             case PacketType.ProbeRequest:
             case PacketType.ProbeResponse:
-                packet = Object.assign(new PacketWithSSID(), packet);   // Create new, more specific, packet and copy old data over
-                packet.ssid = data.match(new RegExp(`(^| )${packetTypeStr} `+'\\'+`((.{0,32})`+'\\'+`)($| )`, 'i'))?.[2] ?? null;
+                newPacket = new PacketWithSSID();
+                newPacket.ssid = data.match(new RegExp(`(^| )${packetTypeStr} `+'\\'+`((.{0,32})`+'\\'+`)($| )`, 'i'))?.[2] ?? null;
                 break;
         }
+        if(newPacket) packet = Object.assign(new newPacket, packet);   // Use new, more specific, packet and copy old data over
     }
 
     _handlePayload(packet, data){
