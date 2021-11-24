@@ -89,6 +89,7 @@ module.exports = {
     AuthenticationPacket,
     AssociationRequestPacket,
     AssociationResponsePacket,
+    DisassociationPacket,
     HandshakeStage,
     HandshakePacket,
 };
