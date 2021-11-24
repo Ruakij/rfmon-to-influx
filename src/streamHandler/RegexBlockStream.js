@@ -32,7 +32,7 @@ class RegexBlockStream extends Transform{
         let matches = chunk.match(this.matcher);    // Match
         if(matches){
             if(this.withholdLastBlock) matches.pop();       // Remove last if we want to withhold it
-            chunk = this._writeMatches(chunk, matches);
+            chunk = this._writeMatches(matches, chunk);
         }
         
         this._buffer = chunk;   // Store remaining data in buffer
