@@ -10,9 +10,10 @@ class RegexBlockStream extends Transform{
     matchAllOnFlush;
 
     /**
-     * @param {RegExp} matcher Block-match - WARNING: It should match a clean-block (including e.g. newline)! Otherwise buffer will get dirty and use more and more ressources.
+     * @param {RegExp} matcher Block-match
      * @param {boolean} withholdLastBlock When true, the last matches block will not be submitted to prevent submitting incomplete blocks.
      * @param {boolean} matchAllOnFlush (Only in combination with withholdLastBlock) When enabled, the buffer will be matched on last time on _flush (stream deconstruction) and write any, also incomplete, blocks
+     * @remarks WARNING: It should match a clean-block (including e.g. newline)! Otherwise buffer will get dirty and use more and more ressources.
      */
     constructor(matcher, withholdLastBlock = true, matchAllOnFlush = false){
         super({
