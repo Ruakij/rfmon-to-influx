@@ -1,7 +1,7 @@
 const logger = require.main.require("./helper/logger.js")("PacketStreamFactory");
 const { Transform } = require('stream');
 const { DateTime } = require("luxon");
-const { PacketType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket, DisassociationPacket, HandshakePacket, HandshakeStage } = require.main.require('./dto/Packet.js');
+const { PacketType, FlagType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket, DisassociationPacket, HandshakePacket, HandshakeStage } = require.main.require('./dto/Packet.js');
 const hexConv = require.main.require("./helper/hexConverter.js");
 
 const PACKET_TYPE_MAP = {
@@ -9,7 +9,6 @@ const PACKET_TYPE_MAP = {
     "Probe Request":    PacketType.ProbeRequest,
     "Probe Response":   PacketType.ProbeResponse,
     "Data":             PacketType.Data,
-    "More Data":        PacketType.MoreData,
     "Request-To-Send":  PacketType.RequestToSend,
     "Clear-To-Send":    PacketType.ClearToSend,
     "Acknowledgment":   PacketType.Acknowledgment,
@@ -26,6 +25,14 @@ const AUTHENTICATION_TYPE_MAP = {
     "(Open System)-1":  AuthenticationType.OpenSystem_1,
     "(Open System)-2":  AuthenticationType.OpenSystem_2,
 }
+
+const FLAG_TYPE_MAP = {
+    "Retry": FlagType.Retry,
+    "Pwr Mgmt": FlagType.PwrMgt,
+    "More Data": FlagType.MoreData,
+    "Protected": FlagType.Protected,
+}
+const FLAG_TYPE_MAPS_REGEX = Object.keys(FLAG_TYPE_MAP).join('|');
 
 /**
  * Read data from text-blocks and convert them to Packet
@@ -59,7 +66,10 @@ class PacketStreamFactory extends Transform{
         // Convert time to epoch-micros         Unfortunately luxon doesnt use micros, but millis as smallest time-unit requiring some "hacks"
         packet.timestampMicros = DateTime.fromISO(data.slice(0, 12)).toSeconds() + data.slice(12, 15)/1000000;
 
-        packet.isRetry = data.match(/(?<=^|\s)Retry(?=$|\s)/i)? true: false;
+        // Find flags
+        data.match(data.match(new RegExp('(?<=^|\\s)('+ FLAG_TYPE_MAPS_REGEX +')(?=$|\\s)', 'ig'))
+            ?.forEach(match => packet.flags[FLAG_TYPE_MAP[match]] = true)       // Set them to true in flags
+        );
 
         packet.dataRate = Number(data.match(/(?<=^|\s)[0-9]+(\.[0-9]+)?(?=\sMb\/?s($|\s))/i)?.[0]) || null;
         packet.frequency = Number(data.match(/(?<=^|\s)[0-9]{4}(?=\sMHz($|\s))/i)?.[0]) || null;
@@ -72,7 +82,7 @@ class PacketStreamFactory extends Transform{
         packet.packetType = packetTypeStr? PACKET_TYPE_MAP[packetTypeStr]: 
                             data.match(/(SA|TA|DA|RA|BSSID):.{17}\s*$/i)? PacketType.NoData:
                             PacketType.Unknown;
-        
+
         packet.srcMac = data.match(/(?<=(^|\s)(SA|TA):).{17}(?=$|\s)/i)?.[0] ?? null;
 
         packet.dstMac = data.match(/(?<=(^|\s)(DA|RA):).{17}(?=$|\s)/i)?.[0] ?? null;

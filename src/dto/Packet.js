@@ -3,7 +3,6 @@ const PacketType = {
     ProbeRequest: 'ProbeRequest',
     ProbeResponse: 'ProbeResponse',
     Data: 'Data',
-    MoreData: 'MoreData',
     RequestToSend: 'RequestToSend',
     ClearToSend: 'ClearToSend',
     Acknowledgment: 'Acknowledgment',
@@ -17,9 +16,19 @@ const PacketType = {
     Unknown: 'Unknown'
 }
 
+const FlagType = {
+    MoreFragments: "MoreFragments",
+    Retry: "Retry",
+    PwrMgt: "PwrMgt",
+    MoreData: "MoreData",
+    Protected: "Protected",
+    Order: "Order"
+}
+
 class Packet{
     timestampMicros;
-    isRetry;
+
+    flags = {};
 
     srcMac;
     dstMac;
@@ -80,6 +89,7 @@ class HandshakePacket extends Packet{
 // Specify exports
 module.exports = {
     PacketType,
+    FlagType,
     Packet,
     PacketWithSSID,
     BeaconPacket,
