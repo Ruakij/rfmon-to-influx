@@ -38,10 +38,6 @@ const FLAG_TYPE_MAPS_REGEX = Object.keys(FLAG_TYPE_MAP).join('|');
  * Read data from text-blocks and convert them to Packet
  */
 class PacketStreamFactory extends Transform{
-    matcher;
-    withholdLastBlock;
-    matchAllOnFlush;
-
     constructor(){
         super({
             readableObjectMode: true,
