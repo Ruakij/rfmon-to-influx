@@ -27,7 +27,7 @@ class RegexBlockStream extends Transform{
     }
 
     _transform(chunk, encoding, next){
-        chunk = this.readableBuffer.length? this.readableBuffer.join() + chunk: chunk;     // Add previous buffer to current chunk
+        chunk = this.readableBuffer.length? this.readableBuffer.join('') + chunk: chunk;     // Add previous buffer to current chunk
         this.readableBuffer.length && this.readableBuffer.clear();      // Clear buffer once we read it
 
         let matches = chunk.match(this.matcher);    // Match
