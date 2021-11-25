@@ -114,7 +114,7 @@ class PacketStreamFactory extends Transform{
         data = data.join('');
 
         // Get payload-Hex-Data. If there is no data: empty
-        packet.payloadData = hexConv.hexToBytes(data.match(/(?<=\s)([A-F0-9]{1,4}(?!(\.|x)))/igm)?.join('') ?? '');
+        packet.payloadData = hexConv.hexToBytes(data.match(/(?<=\s)([A-F0-9]{1,4}(?=\s))/igm)?.join('') ?? '');
 
         // Cover special cases with more data
         let newPacket;
