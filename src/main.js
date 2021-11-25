@@ -9,8 +9,6 @@ const env = process.env;
 {
   env.LOGLEVEL            ??= "INFO";
   env.WIFI_INTERFACE      ??= "wlan0";
-  env.WIFI_CHANNEL        ??= [1,6,11];
-  env.WIFI_CHANNEL_TIME   ??= 1;
 }
 // Required vars
 let errorMsg = requireEnvVars([
