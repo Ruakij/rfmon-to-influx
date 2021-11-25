@@ -53,8 +53,6 @@ class PacketStreamFactory extends Transform{
         packet = this._handleHeader(packet, header);
         packet = this._handlePayload(packet, lines);
         
-        logger.debug(packet);
-
         next(null, packet);     // Get next chunk
     }
 
