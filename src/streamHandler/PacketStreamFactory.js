@@ -69,7 +69,9 @@ class PacketStreamFactory extends Transform{
         packet.signal = Number(data.match(/(?<=^|\s)-[0-9]{2,3}(?=dBm\sSignal($|\s))/i)?.[0]) || null;
 
         let packetTypeStr = data.match(new RegExp('(?<=^|\\s)('+ PACKET_TYPES_REGEX +')(?=$|\\s)', 'i'))?.[0];
-        packet.packetType = packetTypeStr? PACKET_TYPE_MAP[packetTypeStr]: PacketType.Unknown;
+        packet.packetType = packetTypeStr? PACKET_TYPE_MAP[packetTypeStr]: 
+                            data.match(/(SA|TA|DA|RA|BSSID):.{17}\s*$/i)? PacketType.NoData:
+                            PacketType.Unknown;
         
         packet.srcMac = data.match(/(?<=(^|\s)(SA|TA):).{17}(?=$|\s)/i)?.[0] ?? null;
 
