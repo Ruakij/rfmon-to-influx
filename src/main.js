@@ -26,7 +26,11 @@ if(errorMsg){
   const influxDb = new InfluxDB({url: env.INFLUX_URL, token: env.INFLUX_TOKEN});
 
   await InfluxChecks.checkHealth(influxDb)
-    .catch(exit(1))
-    .then((res) => {});
+    .then((res) => {return InfluxChecks.checkBucket(influxDb, {
+      org: env.INFLUX_ORG,
+      name: env.INFLUX_BUCKET
+    })})
+    .then((res) => {})
+    .catch(exit(1));
 
 })();

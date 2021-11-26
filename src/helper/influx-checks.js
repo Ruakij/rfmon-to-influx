@@ -19,8 +19,24 @@ function checkHealth(influxDb){
     });
 }
 
+function checkBucket(influxDb, options){
+    return new Promise((resolve, reject) => {
+        new Influx.BucketsAPI(influxDb).getBuckets(options)
+            .catch((err) => {       // Weirdly the influx-Api returns 404 for searches of non-existing buckets
+                logger.fatal("Could not get bucket:");
+                logger.fatal(`Error [${err.code}]:`, err.message);
+                reject(err);
+            }).then((res) => {      // But an empty list when the bucket exists, but token does not have permission to get details
+                logger.debug("Bucket found");
+                resolve(res);
+                // Now we know the bucket exists and we have some kind of permission.. but we still dont know if we are able to write to it..
+            });
+    });
+}
+
 
 // Specify exports
 module.exports = {
     checkHealth,
+    checkBucket,
 };
