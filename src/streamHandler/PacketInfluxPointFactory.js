@@ -47,7 +47,7 @@ class PacketInfluxPointFactory extends Transform{
 
             point.setField('value', packet[objKey]);        // Set field
 
-            this.push(null, point);     // Push point into stream
+            this.push(point);     // Push point into stream
         });
         
         next();     // Get next packet

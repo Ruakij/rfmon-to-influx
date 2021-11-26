@@ -8,14 +8,16 @@ const {InfluxDB, Point, HttpError} = require('@influxdata/influxdb-client')
 class InfluxPointWriter extends Writable{
     /**
      * 
-     * @param {string} url Influx-Url
-     * @param {string} token Auth-token
+     * @param {InfluxDB} influxDb InfluxDb
      * @param {string} org Organization to use
      * @param {string} bucket Bucket to use
-     * @param {string} precision Precision to use
+     * @param {Partial<WriteOptions>} options Options for WriteApi
      */
-    constructor(url, token, org, bucket, precision = 'us'){
-        this._api = new InfluxDB({url, token}).getWriteApi(org, bucket, precision);
+    constructor(influxDb, org, bucket, options){
+        super({
+            objectMode: true
+        });
+        this._api = influxDb.getWriteApi(org, bucket, 'us', options);
     }
 
     _write(point, encoding, next){
@@ -25,10 +27,8 @@ class InfluxPointWriter extends Writable{
 
     _flush(next){
         this._api.flush(true)
-            .then(
-                next,
-                (err) => { next(new Error(`WriteApi rejected promise for flush: ${err}`)); }
-            );
+            .catch((err) => { next(new Error(`WriteApi rejected promise for flush: ${err}`)); })
+            .then(next);
     }
 }
 
