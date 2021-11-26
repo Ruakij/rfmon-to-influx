@@ -31,7 +31,13 @@ if(errorMsg){
       org: env.INFLUX_ORG,
       name: env.INFLUX_BUCKET
     })})
-    .then((res) => {})
-    .catch(exit(1));
+    .catch((err) => {
+      if(err) {
+        logger.error("Error whilst checking influx:");
+        logger.error(err);
+      }
+      logger.fatal("Setup influx failed!");
+      exit(1);
+    });
 
 })();
