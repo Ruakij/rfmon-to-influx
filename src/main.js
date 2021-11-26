@@ -44,4 +44,6 @@ if(errorMsg){
       exit(1);
     });
 
+  logger.info("Influx ok");
+
 })();
