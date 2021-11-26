@@ -25,10 +25,8 @@ class InfluxPointWriter extends Writable{
 
     _flush(next){
         this._api.flush(true)
-            .then(
-                next,
-                (err) => { next(new Error(`WriteApi rejected promise for flush: ${err}`)); }
-            );
+            .catch((err) => { next(new Error(`WriteApi rejected promise for flush: ${err}`)); })
+            .then(next);
     }
 }
 
