@@ -1,5 +1,6 @@
 const logger = require.main.require("./helper/logger.js")("influx-checks");
 
+const { InfluxDB, Point } = require('@influxdata/influxdb-client')
 const Influx = require('@influxdata/influxdb-client-apis');
 
 
@@ -34,9 +35,43 @@ function checkBucket(influxDb, options){
     });
 }
 
+function checkWriteApi(influxDb, options){
+    return new Promise((resolve, reject) => {
+        const writeApi = influxDb.getWriteApi(options.org, options.bucket);     // Get WriteAPI
+        writeApi.writePoint(new Point("test").tag("ConnectionTest", true).intField("value", 0).timestamp(0))    // Write dummy-point
+        writeApi.close()
+            .catch((err) => {
+                logger.error("Could not get writeApi:");
+                logger.error(`Error [${err.code}]:`, err.message);
+                if(err.code == "not found") logger.fatal("No write-permission?");
+                reject();
+            }).then((res) => {
+                logger.debug("Writing ok");
+
+                // Delete the connection-text-point
+                new Influx.DeleteAPI(influxDb).postDelete({
+                    "body": {
+                        "start": 0,
+                        "end": 1,
+                        "predicate": "ConnectionTest==true"
+                    },
+                    "org": options.org,
+                    "bucket": options.bucket
+                })
+                    .catch((err) => {
+                        logger.error("Could not delete ConnectionTest-Point:");
+                        logger.error(`Error [${err.code}]:`, err.message);
+                        reject();
+                    })
+                    .then(resolve())
+            });
+    });
+}
+
 
 // Specify exports
 module.exports = {
     checkHealth,
     checkBucket,
+    checkWriteApi,
 };

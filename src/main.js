@@ -31,6 +31,10 @@ if(errorMsg){
       org: env.INFLUX_ORG,
       name: env.INFLUX_BUCKET
     })})
+    .then((res) => {return InfluxChecks.checkWriteApi(influxDb, {
+      org: env.INFLUX_ORG,
+      name: env.INFLUX_BUCKET
+    })})
     .catch((err) => {
       if(err) {
         logger.error("Error whilst checking influx:");
