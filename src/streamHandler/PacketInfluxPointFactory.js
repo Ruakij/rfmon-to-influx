@@ -42,8 +42,11 @@ class PacketInfluxPointFactory extends Transform{
             let point = new Point(measurement);     // Create point
             
             // Set tags
-            TAG_LIST.filter(tag => Object.keys(packet).includes(tag))
-                    .forEach(tag => point.tag(tag, packet[tag]));
+            TAG_LIST.filter(tag => Object.keys(packet).includes(tag))   // Filter tags available on object
+                    .filter(tag => packet[tag] != null)                         // Filter tags not falsy on object
+                    .forEach(tag => {
+                        tagObjectRecursively(point, tag, packet[tag]);
+                    });
 
             point.setField('value', packet[objKey]);        // Set field
 
@@ -54,6 +57,15 @@ class PacketInfluxPointFactory extends Transform{
     }
 }
 
+function tagObjectRecursively(point, tag, field, suffix = ""){
+    if(typeof(field) == "object"){
+        // TODO: Convert boolean-arrays like "packet.flags" to key: value
+        Object.entries(field).map(([key, value]) => {
+            tagObjectRecursively(point, tag, value, `_${key}${suffix}`);
+        });
+    }
+    else point.tag(tag+suffix, field);
+}
 
 /** Mapping for type -> field-method */
 const POINT_FIELD_TYPE = new Map([
