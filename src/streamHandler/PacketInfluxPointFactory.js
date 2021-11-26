@@ -37,7 +37,7 @@ class PacketInfluxPointFactory extends Transform{
     _transform(packet, encoding, next){
         // Create measurements
         MEASUREMENT_MAP.forEach((objKey, measurement) => {
-            if(!Object.keys(packet).includes(objKey)) return;
+            if(packet[objKey] == null) return;
 
             let point = new Point(measurement);     // Create point
             
