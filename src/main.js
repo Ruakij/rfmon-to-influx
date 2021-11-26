@@ -33,7 +33,7 @@ if(errorMsg){
     })})
     .then((res) => {return InfluxChecks.checkWriteApi(influxDb, {
       org: env.INFLUX_ORG,
-      name: env.INFLUX_BUCKET
+      bucket: env.INFLUX_BUCKET
     })})
     .catch((err) => {
       if(err) {
