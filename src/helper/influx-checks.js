@@ -40,7 +40,12 @@ function checkWriteApi(influxDb, options){
         const writeApi = influxDb.getWriteApi(options.org, options.bucket);     // Get WriteAPI
         writeApi.writePoint(new Point("test").tag("ConnectionTest", true).intField("value", 0).timestamp(0))    // Write dummy-point
         writeApi.close()
-            .then((res) => {
+            .catch((err) => {
+                logger.error("Could not get writeApi:");
+                logger.error(`Error [${err.code}]:`, err.message);
+                if(err.code == "not found") logger.error("No write-permission?");
+                reject();
+            }).then((res) => {
                 logger.debug("Writing ok");
 
                 // Delete the connection-text-point
@@ -59,11 +64,6 @@ function checkWriteApi(influxDb, options){
                         reject();
                     })
                     .then(resolve())
-            },
-            (err) => {
-                logger.error("Could not get writeApi:");
-                logger.error(`Error [${err.code}]:`, err.message);
-                reject();
             });
     });
 }
