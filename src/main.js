@@ -3,6 +3,7 @@ const logger = require("./helper/logger.js")("main");
 const { requireEnvVars } = require("./helper/env.js");
 const { exit } = require("process");
 const { InfluxDB } = require('@influxdata/influxdb-client');
+const InfluxChecks = require('./helper/influx-checks.js');
 
 /// Setup ENVs
 const env = process.env;
