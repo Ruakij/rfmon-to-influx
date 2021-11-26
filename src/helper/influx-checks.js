@@ -1,4 +1,4 @@
-const logger = require("./helper/logger.js")("influx-checks");
+const logger = require.main.require("./helper/logger.js")("influx-checks");
 
 const Influx = require('@influxdata/influxdb-client-apis');
 
