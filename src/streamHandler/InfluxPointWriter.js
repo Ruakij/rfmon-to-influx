@@ -13,6 +13,10 @@ class InfluxPointWriter extends Writable{
      * @param {string} bucket Bucket to use
      * @param {Partial<WriteOptions>} options Options for WriteApi
      */
+    constructor(influxDb, org, bucket, options){
+        super({
+            objectMode: true
+        });
         this._api = influxDb.getWriteApi(org, bucket, 'us', options);
     }
 
