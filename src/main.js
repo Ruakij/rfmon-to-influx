@@ -2,6 +2,7 @@ const logger = require("./helper/logger.js")("main");
 
 const { requireEnvVars } = require("./helper/env.js");
 const { exit } = require("process");
+const { InfluxDB } = require('@influxdata/influxdb-client');
 
 /// Setup ENVs
 const env = process.env;
@@ -20,3 +21,8 @@ if(errorMsg){
   exit(1);
 }
 
+(async function() {
+  logger.info("Setup Influx..");
+  const influxDb = new InfluxDB({url: env.INFLUX_URL, token: env.INFLUX_TOKEN});
+
+})();
