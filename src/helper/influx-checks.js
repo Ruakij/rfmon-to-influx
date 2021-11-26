@@ -43,7 +43,7 @@ function checkWriteApi(influxDb, options){
             .catch((err) => {
                 logger.error("Could not get writeApi:");
                 logger.error(`Error [${err.code}]:`, err.message);
-                if(err.code == "not found") logger.fatal("No write-permission?");
+                if(err.code == "not found") logger.error("No write-permission?");
                 reject();
             }).then((res) => {
                 logger.debug("Writing ok");
