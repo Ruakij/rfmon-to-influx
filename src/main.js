@@ -25,4 +25,8 @@ if(errorMsg){
   logger.info("Setup Influx..");
   const influxDb = new InfluxDB({url: env.INFLUX_URL, token: env.INFLUX_TOKEN});
 
+  await InfluxChecks.checkHealth(influxDb)
+    .catch(exit(1))
+    .then((res) => {});
+
 })();
