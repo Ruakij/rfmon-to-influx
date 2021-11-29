@@ -88,6 +88,12 @@ class PacketStreamFactory extends Transform{
         
         packet.bssid = data.match(/(?<=(^|\s)BSSID:).{17}(?=$|\s)/i)?.[0] ?? null;
 
+        packet = _handleHeaderPacketType(packet);
+
+        return packet;
+    }
+
+    _handleHeaderPacketType(packet){
         // Cover special cases with more data
         let newPacket;
         switch(packet.packetType){
@@ -126,6 +132,12 @@ class PacketStreamFactory extends Transform{
         packet.payloadData = hexConv.hexToBytes(data.match(/(?<=\s)([A-F0-9]{1,4}(?=\s))/igm)?.join('') ?? '');
         packet.payloadData.splice(packet.payloadData.length-4, 4);      // Remove FrameCheck sequence
 
+        packet = _handlePayloadPacketType(packet, data);
+
+        return packet;
+    }
+
+    _handlePayloadPacketType(packet) {
         // Cover special cases with more data
         let newPacket;
         switch(packet.packetType){
