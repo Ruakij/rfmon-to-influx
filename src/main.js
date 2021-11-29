@@ -71,7 +71,8 @@ if(errorMsg){
   logger.debug("Attaching error-logger..");
   const loggerTcpdump = logFactory("tcpdump");
   proc.stderr.setEncoding("utf8").on("data", (data) => {
-    loggerTcpdump.error(data);
+    if(!data.match(/^(tcpdump: )?listening on /i))  // Catch start-error
+        loggerTcpdump.error(data);
   });
 
   logger.debug("Attaching exit-handler..");
