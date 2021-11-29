@@ -1,3 +1,4 @@
+"use strict";
 const logger = require("./helper/logger.js")("main");
 
 const { requireEnvVars } = require("./helper/env.js");
