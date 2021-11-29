@@ -62,7 +62,7 @@ if(errorMsg){
   logger.debug("Creating & Attaching streams..");
   proc.stdout
     .setEncoding("utf8")
-    .pipe(new RegexBlockStream(/^[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{6}.*(\n( {4,8}|\t\t?).*){1,}\n/gm))
+    .pipe(new RegexBlockStream(/^\d{2}:\d{2}:\d{2}.\d{6}.*(\n( {4,8}|\t\t?).*)+\n/gm))
     .pipe(new PacketStreamFactory())
     .pipe(new PacketInfluxPointFactory())
     .pipe(new InfluxPointWriter(influxDb, env.INFLUX_ORG, env.INFLUX_BUCKET));
