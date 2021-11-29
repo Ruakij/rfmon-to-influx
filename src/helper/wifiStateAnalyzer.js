@@ -1,5 +1,5 @@
 
-function keyInfoFromRaw(rawKeyInfo) {
+function keyInfoFromRaw(keyInfoRaw) {
     return {
         "KeyDescriptorVersion": keyInfoRaw>>0 & 0b111,
         "KeyType":              keyInfoRaw>>3 & 0b1,
