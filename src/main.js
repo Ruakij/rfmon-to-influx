@@ -90,9 +90,17 @@ if(errorMsg){
     loggerTcpdump.error(err);
   });
 
+  const loggerPacketStream = logFactory("PacketStreamFactory");
   userHelper.detectStreamData(proc.stdout, 10000)       // Expect tcpdump-logs to have data after max. 10s
     .then(() => {
         loggerTcpdump.debug("Got first data");
+        userHelper.detectStreamData(packetStreamFactory, 10000)      // Expect then to have packets after further 10s
+            .then(() => {
+                loggerPacketStream.debug("Got first packet");
+            })
+            .catch((err) => {
+                if(err == 'timeout') loggerPacketStream.warn("No packets");
+            });
     })
     .catch((err) => {
         if(err == 'timeout') loggerTcpdump.warn("No data after 10s! Wrong configuration?");
