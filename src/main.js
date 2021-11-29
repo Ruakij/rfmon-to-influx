@@ -14,6 +14,9 @@ const { PacketStreamFactory } = require("./streamHandler/PacketStreamFactory.js"
 const { PacketInfluxPointFactory } = require("./streamHandler/PacketInfluxPointFactory.js");
 const { InfluxPointWriter } = require("./streamHandler/InfluxPointWriter.js");
 
+const userHelper = require("./helper/userHelper.js");
+
+
 /// Setup ENVs
 const env = process.env;
 // Defaults
@@ -62,12 +65,15 @@ if(errorMsg){
   let proc = exec(cmd);
   logger.debug("Creating & Attaching streams..");
   let regexBlockStream = new RegexBlockStream(/^\d{2}:\d{2}:\d{2}.\d{6}.*(\n( {4,8}|\t\t?).*)+\n/gm);
+  let packetStreamFactory = new PacketStreamFactory();
+  let packetInfluxPointFactory = new PacketInfluxPointFactory();
+  let influxPointWriter = new InfluxPointWriter(influxDb, env.INFLUX_ORG, env.INFLUX_BUCKET);
   proc.stdout
     .setEncoding("utf8")
     .pipe(regexBlockStream)
-    .pipe(new PacketStreamFactory())
-    .pipe(new PacketInfluxPointFactory())
-    .pipe(new InfluxPointWriter(influxDb, env.INFLUX_ORG, env.INFLUX_BUCKET));
+    .pipe(packetStreamFactory)
+    .pipe(packetInfluxPointFactory)
+    .pipe(influxPointWriter);
 
   logger.debug("Attaching error-logger..");
   const loggerTcpdump = logFactory("tcpdump");
@@ -83,6 +89,22 @@ if(errorMsg){
   proc.on("error", (err) => {
     loggerTcpdump.error(err);
   });
+
+  const loggerPacketStream = logFactory("PacketStreamFactory");
+  userHelper.detectStreamData(proc.stdout, 10000)       // Expect tcpdump-logs to have data after max. 10s
+    .then(() => {
+        loggerTcpdump.debug("Got first data");
+        userHelper.detectStreamData(packetStreamFactory, 10000)      // Expect then to have packets after further 10s
+            .then(() => {
+                loggerPacketStream.debug("Got first packet");
+            })
+            .catch((err) => {
+                if(err == 'timeout') loggerPacketStream.warn("No packets");
+            });
+    })
+    .catch((err) => {
+        if(err == 'timeout') loggerTcpdump.warn("No data after 10s! Wrong configuration?");
+    });
 
   logger.debug("Attaching exit-handler..");
   proc.on("exit", (code) => {
