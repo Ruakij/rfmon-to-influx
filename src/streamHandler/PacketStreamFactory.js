@@ -65,12 +65,12 @@ class PacketStreamFactory extends Transform{
             ?.forEach(match => packet.flags[FLAG_TYPE_MAP[match]] = true)       // Set them to true in flags
         );
 
-        packet.dataRate = Number(data.match(/(?<=^|\s)[0-9]+(\.[0-9]+)?(?=\sMb\/?s($|\s))/i)?.[0]) || null;
-        packet.frequency = Number(data.match(/(?<=^|\s)[0-9]{4}(?=\sMHz($|\s))/i)?.[0]) || null;
+        packet.dataRate = Number(data.match(/(?<=^|\s)\d+(\.\d+)?(?=\sMb\/?s($|\s))/i)?.[0]) || null;
+        packet.frequency = Number(data.match(/(?<=^|\s)\d{4}(?=\sMHz($|\s))/i)?.[0]) || null;
 
-        packet.durationMicros = Number(data.match(/(?<=^|\s)[0-9]{1,4}(?=us($|\s))/i)?.[0]) || null;
+        packet.durationMicros = Number(data.match(/(?<=^|\s)\d{1,4}(?=us($|\s))/i)?.[0]) || null;
 
-        packet.signal = Number(data.match(/(?<=^|\s)-[0-9]{2,3}(?=dBm\sSignal($|\s))/i)?.[0]) || null;
+        packet.signal = Number(data.match(/(?<=^|\s)-\d{2,3}(?=dBm\sSignal($|\s))/i)?.[0]) || null;
 
         let packetTypeStr = data.match(new RegExp('(?<=^|\\s)('+ PACKET_TYPES_REGEX +')(?=$|\\s)', 'i'))?.[0];
         packet.packetType = packetTypeStr? PACKET_TYPE_MAP[packetTypeStr]: 
