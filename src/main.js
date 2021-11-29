@@ -84,9 +84,8 @@ if(errorMsg){
     else loggerTcpdump.error(data);
   });
 
-  regexBlockStream.on('error', (err) => {
-    if(err) loggerTcpdump.error(err);
-  })
+  // FIXME: This is a hacky workaround to not let errors from subprocess bubble up and terminate our process
+  regexBlockStream.on('error', (err) => {});
 
   proc.on("error", (err) => {
     loggerTcpdump.error(err);
