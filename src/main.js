@@ -1,5 +1,6 @@
 "use strict";
-const logger = require("./helper/logger.js")("main");
+const logFactory = require("./helper/logger.js");
+const logger = logFactory("main");
 
 const { requireEnvVars } = require("./helper/env.js");
 const { exit } = require("process");
@@ -68,16 +69,17 @@ if(errorMsg){
     .pipe(new InfluxPointWriter(influxDb, env.INFLUX_ORG, env.INFLUX_BUCKET));
 
   logger.debug("Attaching error-logger..");
+  const loggerTcpdump = logFactory("tcpdump");
   proc.stderr.setEncoding("utf8").on("data", (data) => {
-    logger.error(data);
+    loggerTcpdump.error(data);
   });
 
   logger.debug("Attaching exit-handler..");
   proc.on("exit", (code) => {
-    logger.info(`tcpdump exited code: ${code}`);
+    loggerTcpdump.info(`tcpdump exited code: ${code}`);
     if (code) {
-      logger.fatal(`tcpdump exited with non-zero code: ${code}`);
-      exit(1);
+        loggerTcpdump.fatal(`tcpdump exited with non-zero code: ${code}`);
+        exit(1);
     }
     logger.info("Shutdown");
     exit(0);
