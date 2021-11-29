@@ -7,6 +7,11 @@ const { exec } = require("./helper/exec.js");
 const { InfluxDB } = require('@influxdata/influxdb-client');
 const InfluxChecks = require('./helper/influx-checks.js');
 
+const { RegexBlockStream } = require("./streamHandler/RegexBlockStream.js");
+const { PacketStreamFactory } = require("./streamHandler/PacketStreamFactory.js");
+const { PacketInfluxPointFactory } = require("./streamHandler/PacketInfluxPointFactory.js");
+const { InfluxPointWriter } = require("./streamHandler/InfluxPointWriter.js");
+
 /// Setup ENVs
 const env = process.env;
 // Defaults
@@ -53,4 +58,17 @@ if(errorMsg){
   let cmd = `sudo ${TCPDUMP_BASECMD} ${env.WIFI_INTERFACE}`;
 
   let proc = exec(cmd);
+  logger.debug("Creating & Attaching streams..");
+  proc.stdout
+    .setEncoding("utf8")
+    .pipe(new RegexBlockStream(/^[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{6}.*(\n( {4,8}|\t\t?).*){1,}\n/gm))
+    .pipe(new PacketStreamFactory())
+    .pipe(new PacketInfluxPointFactory())
+    .pipe(new InfluxPointWriter(influxDb, env.INFLUX_ORG, env.INFLUX_BUCKET));
+
+  logger.debug("Attaching error-logger..");
+  proc.stderr.setEncoding("utf8").on("data", (data) => {
+    logger.error(data);
+  });
+
 })();
