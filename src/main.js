@@ -2,6 +2,8 @@ const logger = require("./helper/logger.js")("main");
 
 const { requireEnvVars } = require("./helper/env.js");
 const { exit } = require("process");
+const { exec } = require("./helper/exec.js");
+
 const { InfluxDB } = require('@influxdata/influxdb-client');
 const InfluxChecks = require('./helper/influx-checks.js');
 
@@ -46,4 +48,9 @@ if(errorMsg){
 
   logger.info("Influx ok");
 
+  logger.info("Starting tcpdump..");
+  const TCPDUMP_BASECMD = "tcpdump -vvv -e -n -X -s0 -i"
+  let cmd = `sudo ${TCPDUMP_BASECMD} ${env.WIFI_INTERFACE}`;
+
+  let proc = exec(cmd);
 })();
