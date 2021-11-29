@@ -75,6 +75,10 @@ if(errorMsg){
         loggerTcpdump.error(data);
   });
 
+  proc.on("error", (err) => {
+    loggerTcpdump.error(err);
+  });
+
   logger.debug("Attaching exit-handler..");
   proc.on("exit", (code) => {
     loggerTcpdump.debug(`tcpdump exited code: ${code}`);
