@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  rfmon:
+    container_name: rfmon
+    image: # TODO: Add image
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      - LOGLEVEL=DEBUG
+      - WIFI_INTERFACE=wlan0
+      - INFLUX_URL=http://influxdb:8086/
+      - INFLUX_TOKEN=
+      - INFLUX_ORG=
+      - INFLUX_BUCKET=
