@@ -62,12 +62,15 @@ if(errorMsg){
   let proc = exec(cmd);
   logger.debug("Creating & Attaching streams..");
   let regexBlockStream = new RegexBlockStream(/^\d{2}:\d{2}:\d{2}.\d{6}.*(\n( {4,8}|\t\t?).*)+\n/gm);
+  let packetStreamFactory = new PacketStreamFactory();
+  let packetInfluxPointFactory = new PacketInfluxPointFactory();
+  let influxPointWriter = new InfluxPointWriter(influxDb, env.INFLUX_ORG, env.INFLUX_BUCKET);
   proc.stdout
     .setEncoding("utf8")
     .pipe(regexBlockStream)
-    .pipe(new PacketStreamFactory())
-    .pipe(new PacketInfluxPointFactory())
-    .pipe(new InfluxPointWriter(influxDb, env.INFLUX_ORG, env.INFLUX_BUCKET));
+    .pipe(packetStreamFactory)
+    .pipe(packetInfluxPointFactory)
+    .pipe(influxPointWriter);
 
   logger.debug("Attaching error-logger..");
   const loggerTcpdump = logFactory("tcpdump");
