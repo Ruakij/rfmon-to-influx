@@ -61,9 +61,10 @@ if(errorMsg){
 
   let proc = exec(cmd);
   logger.debug("Creating & Attaching streams..");
+  let regexBlockStream = new RegexBlockStream(/^\d{2}:\d{2}:\d{2}.\d{6}.*(\n( {4,8}|\t\t?).*)+\n/gm);
   proc.stdout
     .setEncoding("utf8")
-    .pipe(new RegexBlockStream(/^\d{2}:\d{2}:\d{2}.\d{6}.*(\n( {4,8}|\t\t?).*)+\n/gm))
+    .pipe(regexBlockStream)
     .pipe(new PacketStreamFactory())
     .pipe(new PacketInfluxPointFactory())
     .pipe(new InfluxPointWriter(influxDb, env.INFLUX_ORG, env.INFLUX_BUCKET));
@@ -74,6 +75,10 @@ if(errorMsg){
     if(!data.match(/^(tcpdump: )?listening on /i))  // Catch start-error
         loggerTcpdump.error(data);
   });
+
+  regexBlockStream.on('error', (err) => {
+    if(err) loggerTcpdump.error(err);
+  })
 
   proc.on("error", (err) => {
     loggerTcpdump.error(err);
