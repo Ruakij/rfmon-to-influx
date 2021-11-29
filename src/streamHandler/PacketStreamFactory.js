@@ -3,6 +3,7 @@ const { Transform } = require('stream');
 const { DateTime } = require("luxon");
 const { PacketType, FlagType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket, DisassociationPacket, HandshakePacket, HandshakeStage } = require.main.require('./dto/Packet.js');
 const hexConv = require.main.require("./helper/hexConverter.js");
+const wifiStateAnalyser = require.main.require("./helper/wifiStateAnalyzer.js");
 
 const PACKET_TYPE_MAP = {
     "Beacon":           PacketType.Beacon,
@@ -146,20 +147,8 @@ class PacketStreamFactory extends Transform{
 
                 // Read key-information
                 const keyInfoRaw = (packet.payloadData[0x5]<<0x8) + packet.payloadData[0x6];
-                const keyInfo = {
-                    "KeyDescriptorVersion": keyInfoRaw>>0 & 0b111,
-                    "KeyType":  keyInfoRaw>>3 & 0b1,
-                    "KeyIndex": keyInfoRaw>>4 & 0b11,
-                    "Install":  keyInfoRaw>>6 & 0b1,
-                    "KeyACK":   keyInfoRaw>>7 & 0b1,
-                    "KeyMIC":   keyInfoRaw>>8 & 0b1,
-                    "Secure":   keyInfoRaw>>9 & 0b1,
-                    "Error":    keyInfoRaw>>10 & 0b1,
-                    "Request":  keyInfoRaw>>11 & 0b1,
-                    "EncryptedKeyData": keyInfoRaw>>12 & 0b1,
-                    "SMKMessage":       keyInfoRaw>>13 & 0b1,
-                };
-
+                const keyInfo = wifiStateAnalyser.keyInfoFromRaw(keyInfoRaw);
+                
                 newPacket.handshakeStage =  (!keyInfo.Install &&  keyInfo.KeyACK && !keyInfo.KeyMIC && !keyInfo.Secure)? HandshakeStage[1] :
                                             (!keyInfo.Install && !keyInfo.KeyACK &&  keyInfo.KeyMIC && !keyInfo.Secure)? HandshakeStage[2] :
                                             ( keyInfo.Install &&  keyInfo.KeyACK &&  keyInfo.KeyMIC &&  keyInfo.Secure)? HandshakeStage[3] :
