@@ -56,7 +56,7 @@ if(errorMsg){
 
   logger.info("Starting tcpdump..");
   const TCPDUMP_BASECMD = "tcpdump -vvv -e -n -X -s0 -i"
-  let cmd = `sudo ${TCPDUMP_BASECMD} ${env.WIFI_INTERFACE}`;
+  let cmd = `${TCPDUMP_BASECMD} ${env.WIFI_INTERFACE}`;
 
   let proc = exec(cmd);
   logger.debug("Creating & Attaching streams..");
