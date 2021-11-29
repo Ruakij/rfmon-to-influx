@@ -14,6 +14,9 @@ const { PacketStreamFactory } = require("./streamHandler/PacketStreamFactory.js"
 const { PacketInfluxPointFactory } = require("./streamHandler/PacketInfluxPointFactory.js");
 const { InfluxPointWriter } = require("./streamHandler/InfluxPointWriter.js");
 
+const userHelper = require("./helper/userHelper.js");
+
+
 /// Setup ENVs
 const env = process.env;
 // Defaults
@@ -86,6 +89,14 @@ if(errorMsg){
   proc.on("error", (err) => {
     loggerTcpdump.error(err);
   });
+
+  userHelper.detectStreamData(proc.stdout, 10000)       // Expect tcpdump-logs to have data after max. 10s
+    .then(() => {
+        loggerTcpdump.debug("Got first data");
+    })
+    .catch((err) => {
+        if(err == 'timeout') loggerTcpdump.warn("No data after 10s! Wrong configuration?");
+    });
 
   logger.debug("Attaching exit-handler..");
   proc.on("exit", (code) => {
