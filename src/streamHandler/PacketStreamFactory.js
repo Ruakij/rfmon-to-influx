@@ -3,6 +3,7 @@ const { Transform } = require('stream');
 const { DateTime } = require("luxon");
 const { PacketType, FlagType, Packet, PacketWithSSID, BeaconPacket, ProbeRequestPacket, ProbeResponsePacket, AuthenticationPacket, AuthenticationType, AssociationResponsePacket, DisassociationPacket, HandshakePacket, HandshakeStage } = require.main.require('./dto/Packet.js');
 const hexConv = require.main.require("./helper/hexConverter.js");
+const wifiStateAnalyser = require.main.require("./helper/wifiStateAnalyzer.js");
 
 const PACKET_TYPE_MAP = {
     "Beacon":           PacketType.Beacon,
@@ -65,17 +66,22 @@ class PacketStreamFactory extends Transform{
             ?.forEach(match => packet.flags[FLAG_TYPE_MAP[match]] = true)       // Set them to true in flags
         );
 
-        packet.dataRate = Number(data.match(/(?<=^|\s)[0-9]+(\.[0-9]+)?(?=\sMb\/?s($|\s))/i)?.[0]) || null;
-        packet.frequency = Number(data.match(/(?<=^|\s)[0-9]{4}(?=\sMHz($|\s))/i)?.[0]) || null;
+        packet.dataRate = Number(data.match(/(?<=^|\s)\d+(\.\d+)?(?=\sMb\/?s($|\s))/i)?.[0]) || null;
+        packet.frequency = Number(data.match(/(?<=^|\s)\d{4}(?=\sMHz($|\s))/i)?.[0]) || null;
 
-        packet.durationMicros = Number(data.match(/(?<=^|\s)[0-9]{1,4}(?=us($|\s))/i)?.[0]) || null;
+        packet.durationMicros = Number(data.match(/(?<=^|\s)\d{1,4}(?=us($|\s))/i)?.[0]) || null;
 
-        packet.signal = Number(data.match(/(?<=^|\s)-[0-9]{2,3}(?=dBm\sSignal($|\s))/i)?.[0]) || null;
+        packet.signal = Number(data.match(/(?<=^|\s)-\d{2,3}(?=dBm\sSignal($|\s))/i)?.[0]) || null;
 
         let packetTypeStr = data.match(new RegExp('(?<=^|\\s)('+ PACKET_TYPES_REGEX +')(?=$|\\s)', 'i'))?.[0];
-        packet.packetType = packetTypeStr? PACKET_TYPE_MAP[packetTypeStr]: 
-                            data.match(/(SA|TA|DA|RA|BSSID):.{17}\s*$/i)? PacketType.NoData:
-                            PacketType.Unknown;
+        if(packetTypeStr)
+            packet.packetType = PACKET_TYPE_MAP[packetTypeStr];
+        else if(data.match(/(SA|TA|DA|RA|BSSID):.{17}\s*$/i)){
+            packet.packetType = PacketType.NoData
+        }
+        else {
+            packet.packetType = PacketType.Unknown;
+        }
 
         packet.srcMac = data.match(/(?<=(^|\s)(SA|TA):).{17}(?=$|\s)/i)?.[0] ?? null;
 
@@ -129,25 +135,9 @@ class PacketStreamFactory extends Transform{
 
                 // Read key-information
                 const keyInfoRaw = (packet.payloadData[0x5]<<0x8) + packet.payloadData[0x6];
-                const keyInfo = {
-                    "KeyDescriptorVersion": keyInfoRaw>>0 & 0b111,
-                    "KeyType":  keyInfoRaw>>3 & 0b1,
-                    "KeyIndex": keyInfoRaw>>4 & 0b11,
-                    "Install":  keyInfoRaw>>6 & 0b1,
-                    "KeyACK":   keyInfoRaw>>7 & 0b1,
-                    "KeyMIC":   keyInfoRaw>>8 & 0b1,
-                    "Secure":   keyInfoRaw>>9 & 0b1,
-                    "Error":    keyInfoRaw>>10 & 0b1,
-                    "Request":  keyInfoRaw>>11 & 0b1,
-                    "EncryptedKeyData": keyInfoRaw>>12 & 0b1,
-                    "SMKMessage":       keyInfoRaw>>13 & 0b1,
-                };
+                const keyInfo = wifiStateAnalyser.keyInfoFromRaw(keyInfoRaw);   // Convert
 
-                newPacket.handshakeStage =  (!keyInfo.Install &&  keyInfo.KeyACK && !keyInfo.KeyMIC && !keyInfo.Secure)? HandshakeStage[1] :
-                                            (!keyInfo.Install && !keyInfo.KeyACK &&  keyInfo.KeyMIC && !keyInfo.Secure)? HandshakeStage[2] :
-                                            ( keyInfo.Install &&  keyInfo.KeyACK &&  keyInfo.KeyMIC &&  keyInfo.Secure)? HandshakeStage[3] :
-                                            (!keyInfo.Install && !keyInfo.KeyACK &&  keyInfo.KeyMIC &&  keyInfo.Secure)? HandshakeStage[4] :
-                                            null;
+                newPacket.handshakeStage =  wifiStateAnalyser.handshakeStageFromKeyInfo(keyInfo);   // Get stage
                 break;
         }
         if(newPacket) packet = Object.assign(newPacket, packet);
