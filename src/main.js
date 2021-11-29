@@ -77,7 +77,7 @@ if(errorMsg){
 
   logger.debug("Attaching exit-handler..");
   proc.on("exit", (code) => {
-    loggerTcpdump.info(`tcpdump exited code: ${code}`);
+    loggerTcpdump.debug(`tcpdump exited code: ${code}`);
     if (code) {
         loggerTcpdump.fatal(`tcpdump exited with non-zero code: ${code}`);
         exit(1);
