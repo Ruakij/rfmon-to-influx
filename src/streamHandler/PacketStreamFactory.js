@@ -135,13 +135,9 @@ class PacketStreamFactory extends Transform{
 
                 // Read key-information
                 const keyInfoRaw = (packet.payloadData[0x5]<<0x8) + packet.payloadData[0x6];
-                const keyInfo = wifiStateAnalyser.keyInfoFromRaw(keyInfoRaw);
-                
-                newPacket.handshakeStage =  (!keyInfo.Install &&  keyInfo.KeyACK && !keyInfo.KeyMIC && !keyInfo.Secure)? HandshakeStage[1] :
-                                            (!keyInfo.Install && !keyInfo.KeyACK &&  keyInfo.KeyMIC && !keyInfo.Secure)? HandshakeStage[2] :
-                                            ( keyInfo.Install &&  keyInfo.KeyACK &&  keyInfo.KeyMIC &&  keyInfo.Secure)? HandshakeStage[3] :
-                                            (!keyInfo.Install && !keyInfo.KeyACK &&  keyInfo.KeyMIC &&  keyInfo.Secure)? HandshakeStage[4] :
-                                            null;
+                const keyInfo = wifiStateAnalyser.keyInfoFromRaw(keyInfoRaw);   // Convert
+
+                newPacket.handshakeStage =  wifiStateAnalyser.handshakeStageFromKeyInfo(keyInfo);   // Get stage
                 break;
         }
         if(newPacket) packet = Object.assign(newPacket, packet);

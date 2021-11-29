@@ -1,3 +1,4 @@
+const { HandshakeStage } = require.main.require('./dto/Packet.js');
 
 function keyInfoFromRaw(keyInfoRaw) {
     return {
@@ -15,8 +16,28 @@ function keyInfoFromRaw(keyInfoRaw) {
     };
 }
 
+const HANDSHAKE_STAGE_KEYINFO = {
+    "keys": ["Install", "KeyACK", "KeyMIC", "Secure"],
+    "0100": HandshakeStage[1],
+    "0010": HandshakeStage[2],
+    "1111": HandshakeStage[3],
+    "0011": HandshakeStage[4],
+};
+function handshakeStageFromKeyInfo(keyInfo){
+
+    // Extract compare-keys
+    let keyData = "";
+    for (const key of HANDSHAKE_STAGE_KEYINFO['keys']) {
+        keyData += keyInfo[key].toString();
+    }
+    
+    // Get and return stage
+    return  HANDSHAKE_STAGE_KEYINFO[keyData];
+}
+
 
 // Specify exports
 module.exports = {
     keyInfoFromRaw,
+    handshakeStageFromKeyInfo,
 };
