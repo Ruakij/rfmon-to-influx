@@ -117,5 +117,14 @@ if(errorMsg){
     exit(0);
   });
 
+  // Handle stop-signals for graceful shutdown
+  function shutdownReq() {
+    logger.info("Shutdown request received..");
+    logger.debug("Stopping subprocess tcpdump, then exiting myself..");
+    proc.kill();    // Kill process (send SIGTERM), then upper event-handler will stop self
+  }
+  process.on('SIGTERM', shutdownReq);
+  process.on('SIGINT', shutdownReq);
+
   logger.info("Startup complete");
 })();
