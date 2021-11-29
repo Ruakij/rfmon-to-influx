@@ -9,6 +9,7 @@ const TAG_LIST = [
     "bssid",
     "frequency",
     "flags",
+    "packetType",
 ];
 
 /** Measurement-name and corresponding field-key */
