@@ -78,8 +78,10 @@ if(errorMsg){
   logger.debug("Attaching error-logger..");
   const loggerTcpdump = logFactory("tcpdump");
   proc.stderr.setEncoding("utf8").on("data", (data) => {
-    if(!data.match(/^(tcpdump: )?listening on /i))  // Catch start-error
-        loggerTcpdump.error(data);
+    if(!data.match(/^(tcpdump: )?listening on /i) || !data.match(/^\d+ packets captured/i)) {  // Catch start-error
+        loggerTcpdump.debug(data);
+    }
+    else loggerTcpdump.error(data);
   });
 
   regexBlockStream.on('error', (err) => {
