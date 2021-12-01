@@ -21,6 +21,7 @@ const MEASUREMENT_MAP = new Map([
     ["AuthenticationType", "authenticationType"],
     ["AssociationSuccess", "associationIsSuccessful"],
     ["DisassociationReason", "disassociationReason"],
+    ["HandshakeStage", "handshakeStage"],
 ]);
 
 
