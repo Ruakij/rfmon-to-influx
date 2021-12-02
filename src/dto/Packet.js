@@ -1,20 +1,20 @@
 const PacketType = {
-    Beacon: 'Beacon',
-    ProbeRequest: 'ProbeRequest',
-    ProbeResponse: 'ProbeResponse',
-    Data: 'Data',
-    RequestToSend: 'RequestToSend',
-    ClearToSend: 'ClearToSend',
-    Acknowledgment: 'Acknowledgment',
-    BlockAcknowledgment: 'BlockAcknowledgment',
-    NoData: 'NoData',
-    Authentication: 'Authentication',
-    AssociationRequest: 'AssociationRequest',
-    AssociationResponse: 'AssociationResponse',
-    Disassociation: 'Disassociation',
-    Handshake: 'Handshake',
-    Unknown: 'Unknown'
-}
+    Beacon: "Beacon",
+    ProbeRequest: "ProbeRequest",
+    ProbeResponse: "ProbeResponse",
+    Data: "Data",
+    RequestToSend: "RequestToSend",
+    ClearToSend: "ClearToSend",
+    Acknowledgment: "Acknowledgment",
+    BlockAcknowledgment: "BlockAcknowledgment",
+    NoData: "NoData",
+    Authentication: "Authentication",
+    AssociationRequest: "AssociationRequest",
+    AssociationResponse: "AssociationResponse",
+    Disassociation: "Disassociation",
+    Handshake: "Handshake",
+    Unknown: "Unknown"
+};
 
 const FlagType = {
     MoreFragments: "MoreFragments",
@@ -23,7 +23,7 @@ const FlagType = {
     MoreData: "MoreData",
     Protected: "Protected",
     Order: "Order"
-}
+};
 
 class Packet{
     timestampMicros;
@@ -58,9 +58,9 @@ class ProbeRequestPacket extends PacketWithSSID{}
 class ProbeResponsePacket extends PacketWithSSID{}
 
 const AuthenticationType = {
-    OpenSystem_1: 'OpenSystem_1',
-    OpenSystem_2: 'OpenSystem_2',
-    Unknown: 'Unknown',
+    OpenSystem_1: "OpenSystem_1",
+    OpenSystem_2: "OpenSystem_2",
+    Unknown: "Unknown",
 }
 class AuthenticationPacket extends Packet{
     authenticationType;
@@ -77,10 +77,10 @@ class DisassociationPacket extends Packet{
 
 
 const HandshakeStage = {
-    1: '1',
-    2: '2',
-    3: '3',
-    4: '4'
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4"
 }
 class HandshakePacket extends Packet{
     handshakeStage;
