@@ -51,11 +51,10 @@ class RegexBlockStream extends Transform{
     }
 
     _flush(next){
-        if(matchAllOnFlush){    // When requested, we'll match one last time over the remaining buffer
-            let chunk = this.readableBuffer.join('');
+        if(this.matchAllOnFlush){    // When requested, we'll match one last time over the remaining buffer
             let chunk = this.readableBuffer.join("");
             let matches = chunk.match(this.matcher);    // Match remaining buffer
-            _writeMatches(matches);    // Write matches including last element
+            this._writeMatches(matches);    // Write matches including last element
         }
         
         next();     // Tell system we are done
