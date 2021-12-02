@@ -1,7 +1,7 @@
 const logger = require("./logger.js")("exec");
 
 const { spawn } = require("child_process");
-const { parseArgsStringToArgv } = require('string-argv');
+const { parseArgsStringToArgv } = require("string-argv");
 
 
 function exec(cmd, options){

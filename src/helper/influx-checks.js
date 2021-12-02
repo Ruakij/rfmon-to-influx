@@ -1,8 +1,8 @@
 const logger = require.main.require("./helper/logger.js")("influx-checks");
 
 const Os = require("os");
-const { InfluxDB, Point } = require('@influxdata/influxdb-client')
-const Influx = require('@influxdata/influxdb-client-apis');
+const { InfluxDB, Point } = require("@influxdata/influxdb-client")
+const Influx = require("@influxdata/influxdb-client-apis");
 
 
 function checkHealth(influxDb){
@@ -39,7 +39,7 @@ function checkBucket(influxDb, options){
 function checkWriteApi(influxDb, options){
     return new Promise((resolve, reject) => {
         const writeApi = influxDb.getWriteApi(options.org, options.bucket);     // Get WriteAPI
-        writeApi.writePoint(new Point("worker_connectionTest").tag("hostname", Os.hostname()))    // Write point
+        writeApi.writePoint(new Point("worker_connectionTest").tag("hostname", Os.hostname()));   // Write point
         writeApi.close()
             .catch((err) => {
                 logger.error("Could not get writeApi:");

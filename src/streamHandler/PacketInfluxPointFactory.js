@@ -1,6 +1,6 @@
 const logger = require.main.require("./helper/logger.js")("PacketStreamFactory");
-const { Transform } = require('stream');
-const {Point} = require('@influxdata/influxdb-client')
+const { Transform } = require("stream");
+const {Point} = require("@influxdata/influxdb-client");
 
 /** Keys to always use as tags */
 const TAG_LIST = [
@@ -45,12 +45,12 @@ class PacketInfluxPointFactory extends Transform{
             
             // Set tags
             TAG_LIST.filter(tag => Object.keys(packet).includes(tag))   // Filter tags available on object
-                    .filter(tag => packet[tag] != null)                         // Filter tags not falsy on object
-                    .forEach(tag => {
-                        tagObjectRecursively(point, tag, packet[tag]);
-                    });
+                .filter(tag => packet[tag] != null)                         // Filter tags not falsy on object
+                .forEach(tag => {
+                    tagObjectRecursively(point, tag, packet[tag]);
+                });
 
-            point.setField('value', packet[objKey]);        // Set field
+            point.setField("value", packet[objKey]);        // Set field
 
             this.push(point);     // Push point into stream
         });
@@ -71,14 +71,14 @@ function tagObjectRecursively(point, tag, field, suffix = ""){
 
 /** Mapping for type -> field-method */
 const POINT_FIELD_TYPE = new Map([
-    ['boolean',   function(key, value){ return this.booleanField(key, value); }],
-    ['number',    function(key, value){ return this.intField(key, value); }],
-    ['string',    function(key, value){ return this.stringField(key, value); }],
+    ["boolean",   function(key, value){ return this.booleanField(key, value); }],
+    ["number",    function(key, value){ return this.intField(key, value); }],
+    ["string",    function(key, value){ return this.stringField(key, value); }],
 ]);
 Point.prototype.setField = function(key, value){
     let setField = POINT_FIELD_TYPE.get(typeof value);
     return setField.apply(this, [key, value]);
-}
+};
 
 // Specify exports
 module.exports = {

@@ -5,15 +5,15 @@ function detectStreamData(stream, timeout = 5000){
         let timeoutHandler;
         if(timeout){
             timeoutHandler = setTimeout(() => {
-                reject('timeout');
+                reject("timeout");
                 remListeners();
             },
             timeout);
         }
 
         function remListeners(){ 
-            stream.removeListener('error', errorHandler);
-            stream.removeListener('data', dataHandler);
+            stream.removeListener("error", errorHandler);
+            stream.removeListener("data", dataHandler);
             if(timeoutHandler) clearTimeout(timeoutHandler);
         }
 
@@ -25,8 +25,8 @@ function detectStreamData(stream, timeout = 5000){
             remListeners();
         }
 
-        stream.on('error', errorHandler);
-        stream.on('data', dataHandler);
+        stream.on("error", errorHandler);
+        stream.on("data", dataHandler);
     });    
 }
 
@@ -34,7 +34,7 @@ function detectStreamsData(streams, timeout = 5000){
     let promises = [];
     streams.forEach((stream) => {
         promises.push(detectStreamData(stream, timeout));
-    })
+    });
     return promises;
 }
 
