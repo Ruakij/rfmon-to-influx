@@ -21,4 +21,4 @@ function bytesToHex(bytes) {
 module.exports = {
     hexToBytes,
     bytesToHex
-}
+};

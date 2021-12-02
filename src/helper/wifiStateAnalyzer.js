@@ -1,4 +1,4 @@
-const { HandshakeStage } = require.main.require('./dto/Packet.js');
+const { HandshakeStage } = require.main.require("./dto/Packet.js");
 
 function keyInfoFromRaw(keyInfoRaw) {
     return {
@@ -27,7 +27,7 @@ function handshakeStageFromKeyInfo(keyInfo){
 
     // Extract compare-keys
     let keyData = "";
-    for (const key of HANDSHAKE_STAGE_KEYINFO['keys']) {
+    for (const key of HANDSHAKE_STAGE_KEYINFO["keys"]) {
         keyData += keyInfo[key].toString();
     }
     
