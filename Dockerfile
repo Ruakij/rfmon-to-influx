@@ -7,6 +7,9 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 
+# remove development dependencies
+RUN npm prune --production
+
 # Install required apk-packages & delete cache
 RUN apk update && apk add tcpdump && rm -rf /var/cache/apk/*
 
