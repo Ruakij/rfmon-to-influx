@@ -4,24 +4,24 @@ const {Point} = require("@influxdata/influxdb-client");
 
 /** Keys to always use as tags */
 const TAG_LIST = [
-    "srcMac",
-    "dstMac",
+    "srcmac",
+    "dstmac",
     "bssid",
     "frequency",
     "flags",
-    "packetType",
+    "packettype",
 ];
 
 /** Measurement-name and corresponding field-key */
 const MEASUREMENT_MAP = new Map([
-    ["Signal", "signal"],
-    ["PayloadSize", "payloadSize"],
-    ["DataRate", "dataRate"],
-    ["SSID", "ssid"],
-    ["AuthenticationType", "authenticationType"],
-    ["AssociationSuccess", "associationIsSuccessful"],
-    ["DisassociationReason", "disassociationReason"],
-    ["HandshakeStage", "handshakeStage"],
+    ["rfmon_signal_dbm", "signal"],
+    ["rfmon_payloadsize_bytes", "payloadSize"],
+    ["rfmon_datarate_bytes", "dataRate"],
+    ["rfmon_ssid_names", "ssid"],
+    ["rfmon_authenticationtype_info", "authenticationType"],
+    ["rfmon_associationsuccess_bools", "associationIsSuccessful"],
+    ["rfmon_disassociationreason_info", "disassociationReason"],
+    ["rfmon_handshakestage_info", "handshakeStage"],
 ]);
 
 
