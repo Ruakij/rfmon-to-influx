@@ -4,12 +4,12 @@ const {Point} = require("@influxdata/influxdb-client");
 
 /** Keys to always use as tags */
 const TAG_LIST = [
-    "srcmac",
-    "dstmac",
+    "srcMac",
+    "dstMac",
     "bssid",
     "frequency",
     "flags",
-    "packettype",
+    "packetType",
 ];
 
 /** Measurement-name and corresponding field-key */
@@ -66,7 +66,10 @@ function tagObjectRecursively(point, tag, field, suffix = ""){
             tagObjectRecursively(point, tag, value, `_${key}${suffix}`);
         });
     }
-    else point.tag(tag+suffix, field);
+    else {
+        const name = (tag+suffix).toLowerCase();
+        point.tag(name, field);
+    }
 }
 
 /** Mapping for type -> field-method */
