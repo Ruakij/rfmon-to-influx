@@ -61,7 +61,7 @@ const AuthenticationType = {
     OpenSystem_1: "OpenSystem_1",
     OpenSystem_2: "OpenSystem_2",
     Unknown: "Unknown",
-}
+};
 class AuthenticationPacket extends Packet{
     authenticationType;
 }
@@ -81,7 +81,7 @@ const HandshakeStage = {
     2: "2",
     3: "3",
     4: "4"
-}
+};
 class HandshakePacket extends Packet{
     handshakeStage;
 }
