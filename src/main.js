@@ -60,7 +60,7 @@ if(errorMsg){
 
     logger.debug("Get WriteApi & set default-hostname to", `'${env.HOSTNAME}'`);
     const influxWriteApi = influxDb.getWriteApi(env.INFLUX_ORG, env.INFLUX_BUCKET, "us");
-    influxWriteApi.useDefaultTags("hostname", env.HOSTNAME);
+    influxWriteApi.useDefaultTags({"hostname": env.HOSTNAME});
     logger.info("Influx ok");
 
     logger.info("Starting tcpdump..");
