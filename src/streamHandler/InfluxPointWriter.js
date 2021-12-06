@@ -1,6 +1,6 @@
 const logger = require.main.require("./helper/logger.js")("InfluxPointWriter");
 const { Writable } = require("stream");
-const {InfluxDB, Point, HttpError} = require("@influxdata/influxdb-client");
+const { WriteApi } = require("@influxdata/influxdb-client");
 
 /**
  * Get points and write them into influx
@@ -8,16 +8,13 @@ const {InfluxDB, Point, HttpError} = require("@influxdata/influxdb-client");
 class InfluxPointWriter extends Writable{
     /**
      * 
-     * @param {InfluxDB} influxDb InfluxDb
-     * @param {string} org Organization to use
-     * @param {string} bucket Bucket to use
-     * @param {Partial<WriteOptions>} options Options for WriteApi
+     * @param {WriteApi} writeApi WriteAPI from InfluxDB instance
      */
-    constructor(influxDb, org, bucket, options){
+    constructor(writeApi){
         super({
             objectMode: true
         });
-        this._api = influxDb.getWriteApi(org, bucket, "us", options);
+        this._api = writeApi;
     }
 
     _write(point, encoding, next){

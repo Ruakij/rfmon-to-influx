@@ -5,6 +5,7 @@ const logger = logFactory("main");
 const { requireEnvVars } = require("./helper/env.js");
 const { exit } = require("process");
 const { exec } = require("./helper/exec.js");
+const Os = require("os");
 
 const { InfluxDB } = require("@influxdata/influxdb-client");
 const InfluxChecks = require("./helper/influx-checks.js");
@@ -23,6 +24,7 @@ const env = process.env;
 {
     env.LOGLEVEL            ??= "INFO";
     env.WIFI_INTERFACE      ??= "wlan0";
+    env.HOSTNAME            ??= Os.hostname();
 }
 // Required vars
 let errorMsg = requireEnvVars([
@@ -56,6 +58,9 @@ if(errorMsg){
             exit(1);
         });
 
+    logger.debug("Get WriteApi & set default-hostname to", `'${env.HOSTNAME}'`);
+    const influxWriteApi = influxDb.getWriteApi(env.INFLUX_ORG, env.INFLUX_BUCKET, "us");
+    influxWriteApi.useDefaultTags("hostname", env.HOSTNAME);
     logger.info("Influx ok");
 
     logger.info("Starting tcpdump..");
@@ -67,7 +72,7 @@ if(errorMsg){
     let regexBlockStream = new RegexBlockStream(/^\d{2}:\d{2}:\d{2}.\d{6}.*(\n( {4,8}|\t\t?).*)+\n/gm);
     let packetStreamFactory = new PacketStreamFactory();
     let packetInfluxPointFactory = new PacketInfluxPointFactory();
-    let influxPointWriter = new InfluxPointWriter(influxDb, env.INFLUX_ORG, env.INFLUX_BUCKET);
+    let influxPointWriter = new InfluxPointWriter(influxWriteApi);
     proc.stdout
         .setEncoding("utf8")
         .pipe(regexBlockStream)
