@@ -117,15 +117,20 @@ if(errorMsg){
         loggerTcpdump.debug(`tcpdump exited code: ${code}`);
         if (code) {
             loggerTcpdump.fatal(`tcpdump exited with non-zero code: ${code}`);
-            exit(1);
+            if(!exitCode) exitCode = 1;     // When exitCode is 0, set to 1
         }
         logger.info("Shutdown");
-        exit(0);
+        exit(exitCode);
     });
 
     // Handle stop-signals for graceful shutdown
+    var exitCode = 0;
     function shutdownReq() {
         logger.info("Shutdown request received..");
+        shutdown();
+    }
+    function shutdown(code, signal = "SIGTERM"){
+        if(code) exitCode = code;
         logger.debug("Stopping subprocess tcpdump, then exiting myself..");
         proc.kill();    // Kill process (send SIGTERM), then upper event-handler will stop self
     }
