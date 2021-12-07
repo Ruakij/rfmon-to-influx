@@ -90,7 +90,7 @@ if(errorMsg){
             if(!linkTypeId && data.match(/^(tcpdump: )?listening on/i)){   // Grab first data containing listen-info if proper header was found
                 const linkType = data.match(/((?<=link-type ))([a-z].*?) \(.*?\)(?=,)/i)[0];
                 const linkTypeData = linkType.match(/(\S*) (.*)/i);
-                const linkTypeId = linkTypeData[1];
+                linkTypeId = linkTypeData[1];
                 const linkTypeDetail = linkTypeData[2];
     
                 if(linkTypeId !== "IEEE802_11_RADIO"){
