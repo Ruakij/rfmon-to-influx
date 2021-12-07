@@ -82,9 +82,22 @@ if(errorMsg){
 
     logger.debug("Attaching error-logger..");
     const loggerTcpdump = logFactory("tcpdump");
+    let linkTypeId;
     proc.stderr.setEncoding("utf8").on("data", (data) => {
         if(!data.match(/^(tcpdump: )?listening on /i) || !data.match(/^\d+ packets captured/i)) {  // Catch start-error
             loggerTcpdump.debug(data);
+
+            if(!linkTypeId && data.match(/^(tcpdump: )?listening on/i)){   // Grab first data containing listen-info if proper header was found
+                const linkType = data.match(/((?<=link-type ))([a-z].*?) \(.*?\)(?=,)/i)[0];
+                const linkTypeData = linkType.match(/(\S*) (.*)/i);
+                const linkTypeId = linkTypeData[1];
+                const linkTypeDetail = linkTypeData[2];
+    
+                if(linkTypeId !== "IEEE802_11_RADIO"){
+                    logger.error(`Interface not in Monitor-mode! (Expected 'IEEE802_11_RADIO', but got '${linkTypeId}')`);
+                    shutdown(1, "SIGKILL");
+                }
+            }
         }
         else loggerTcpdump.error(data);
     });
