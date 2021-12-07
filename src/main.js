@@ -84,7 +84,7 @@ if(errorMsg){
     const loggerTcpdump = logFactory("tcpdump");
     let linkTypeId;
     proc.stderr.setEncoding("utf8").on("data", (data) => {
-        if(!data.match(/^(tcpdump: )?listening on /i) || !data.match(/^\d+ packets captured/i)) {  // Catch start-error
+        if(data.match(/^(tcpdump: )?listening on /i) || data.match(/^\d+ packets captured/i)) {  // Catch start-error
             loggerTcpdump.debug(data);
 
             if(!linkTypeId && data.match(/^(tcpdump: )?listening on/i)){   // Grab first data containing listen-info if proper header was found
