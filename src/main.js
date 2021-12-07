@@ -132,7 +132,7 @@ if(errorMsg){
     function shutdown(code, signal = "SIGTERM"){
         if(code) exitCode = code;
         logger.debug("Stopping subprocess tcpdump, then exiting myself..");
-        proc.kill();    // Kill process (send SIGTERM), then upper event-handler will stop self
+        proc.kill(signal);    // Kill process, then upper event-handler will stop self
     }
     process.on("SIGTERM", shutdownReq);
     process.on("SIGINT", shutdownReq);
