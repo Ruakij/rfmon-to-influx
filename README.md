@@ -19,8 +19,9 @@ Table of contents
     - [1.3. Tools used](#13-tools-used)
 - [2. Usage/Installation](#2-usageinstallation)
     - [2.1. Prerequisites](#21-prerequisites)
-    - [2.2. Running with Docker](#22-running-with-docker)
-    - [2.3. Environment-Variables](#23-environment-variables)
+    - [2.2. Choosing an Export-Method](#22-choosing-an-export-method)
+    - [2.3. Running with Docker](#23-running-with-docker)
+    - [2.4. Environment-Variables](#24-environment-variables)
 - [3. Data collected](#3-data-collected)
     - [3.1. Data-Types](#31-data-types)
     - [3.2. Metric-Overview](#32-metric-overview)
@@ -113,17 +114,33 @@ iw dev <interface> set channel <channelNumber>
 
 <br>
 
-## 2.2. Running with Docker
+## 2.2. Choosing an Export-Method
 
-### 2.2.1. Permissions
+The system allows exporting directly into [InfluxDB](https://docs.influxdata.com/influxdb) version >= 2.0 or into any system using the [InfluxDb-Line-Protocol](https://docs.influxdata.com/influxdb/v2.1/reference/syntax/line-protocol/) e.g. [QuestDB](https://questdb.io/) over TCP.
+
+As of writing (using InfluxDB v2.1 and using the *flux*-language), the data written by this system was a bit too much for InfluxDB and it struggled very quickly on a fairly beefy machine.
+
+Thats why the additional LineProtocol-Export-Method was added. Freedom of choice of the Time-Database.
+
+<br>
+
+If you want to use the InfluxDB-Line-Protocol, simply set the environment variable `USE_INFLUXDB_LINEPROTOCOL` to `true` along with the-other necessary Host and Port-variables.
+
+<br>
+
+## 2.3. Running with Docker
+
+### 2.3.1. Permissions
 
 The container must run as **root**, to have permission to listen on the wifi-interface.
 
 <br>
 
-### 2.2.2. docker run
+### 2.3.2. docker run
 
 Either run with docker directly.
+
+<details><summary>for InfluxDB</summary>
 
 ```sh
 docker run
@@ -134,17 +151,34 @@ docker run
   -e INFLUX_URL="http://influxdb:8086/"
   -e INFLUX_TOKEN="<yourToken>"
   -e INFLUX_ORG="<yourOrganisation>"
-  -e INFLUX_BUCKET="<yourBucket>"
   ruakij/rfmon-to-influx:2
 ```
+</details>
+
+<details><summary>for InfluxDB-Line-Protocol</summary>
+
+```sh
+docker run
+  -d
+  --restart unless-stopped 
+  --network host
+  -e WIFI_INTERFACE="<yourInterfaceName or leave empty for wlan0>"
+  -e USE_INFLUXDB_LINEPROTOCOL="true"
+  -e INFLUXDB_LINEPROTOCOL_HOST="<host>"
+  -e INFLUXDB_LINEPROTOCOL_PORT="<port>"
+  ruakij/rfmon-to-influx:2
+```
+</details>
 
 <br>
 
-### 2.2.3. docker-compose
+### 2.3.3. docker-compose
 
 Or use the more preferred way with docker-compose.
 
 `docker-compose.yml`
+
+<details><summary>for InfluxDB</summary>
 
 ```yaml
 version: '3'
@@ -162,6 +196,28 @@ services:
       - INFLUX_ORG="<yourOrganisation>"
       - INFLUX_BUCKET="<yourBucket>"
 ```
+</details>
+
+<details><summary>for InfluxDB-Line-Protocol</summary>
+
+```yaml
+version: '3'
+
+services:
+  rfmon:
+    container_name: rfmon
+    image: ruakij/rfmon-to-influx:2
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      - WIFI_INTERFACE="<yourInterfaceName or leave empty for wlan0>"
+      - USE_INFLUXDB_LINEPROTOCOL="true"
+      - INFLUXDB_LINEPROTOCOL_HOST="<host>"
+      - INFLUXDB_LINEPROTOCOL_PORT="<port>"
+```
+</details>
+
+<br>
 
 And then pull&start the container:
 ```sh
@@ -170,9 +226,11 @@ docker-compose up -d
 
 <br>
 
-## 2.3. Environment-Variables
+## 2.4. Environment-Variables
 
-### 2.3.1. Necessary
+### 2.4.1. Necessary
+
+<details><summary>for InfluxDB</summary>
 
 Variable|Description
 ---|---
@@ -180,10 +238,20 @@ Variable|Description
 `INFLUX_TOKEN`  | Token with write-access
 `INFLUX_ORG`    | Organisation and..
 `INFLUX_BUCKET` | Bucket to write into
+</details>
+
+<details><summary>for InfluxDB-Line-Protocol</summary>
+
+Variable|Description
+---|---
+`USE_INFLUXDB_LINEPROTOCOL`     | Enable LineProtocol
+`INFLUXDB_LINEPROTOCOL_HOST`    | Host and..
+`INFLUXDB_LINEPROTOCOL_PORT`    | Port of your server
+</details>
 
 <br>
 
-### 2.3.2. Optional
+### 2.4.2. Optional
 
 Variable|Default|Description
 ---|---|---
