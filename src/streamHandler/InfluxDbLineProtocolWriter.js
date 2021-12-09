@@ -24,7 +24,7 @@ class InfluxDbLineProtocolWriter extends net.Socket{
         options.autoReconnectBackoffTime    ??= 3000;
         this._options = options;
 
-        super.setKeepalive(true, 5000);
+        super.setKeepAlive(true, 5000);
 
         // Register auto-Reconnect if enabled
         if(this._options.autoReconnect){
