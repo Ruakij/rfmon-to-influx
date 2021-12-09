@@ -24,12 +24,15 @@ class InfluxDbLineProtocolWriter extends net.Socket{
         options.autoReconnectBackoffTime    ??= 3000;
         this._options = options;
 
+        this._isConnected = false;
+
         super.setKeepAlive(true, 5000);
 
         // Register auto-Reconnect if enabled
         if(this._options.autoReconnect){
             this.on("connect", () => {
                 logger.debug("Connection established!");
+                this._isConnected = true;
 
                 if(this._autoReconnectTimeout)
                     clearInterval(this._autoReconnectTimeout);
@@ -38,6 +41,8 @@ class InfluxDbLineProtocolWriter extends net.Socket{
 
             this.on("error", (err) => {
                 logger.error(err.code, "TCP ERROR");
+                this._isConnected = false;
+                
                 if(!this._autoReconnectTimeout)
                     this._autoReconnectTimeout = setInterval(() => {
                         this.connect();
@@ -52,6 +57,8 @@ class InfluxDbLineProtocolWriter extends net.Socket{
 
     get host(){ return this._host; }
     get port(){ return this._port; }
+
+    get isConnected(){ return this._isConnected; }
 
     connect(){
         logger.debug("Connecting..");
