@@ -14,6 +14,8 @@ const { RegexBlockStream } = require("./streamHandler/RegexBlockStream.js");
 const { PacketStreamFactory } = require("./streamHandler/PacketStreamFactory.js");
 const { PacketInfluxPointFactory } = require("./streamHandler/PacketInfluxPointFactory.js");
 const { InfluxPointWriter } = require("./streamHandler/InfluxPointWriter.js");
+const { InfluxDbLineProtocolWriter } = require("./streamHandler/InfluxDbLineProtocolWriter.js");
+const { InfluxPointToLineProtoStream } = require("./streamHandler/InfluxPointToLineProtoStream.js");
 
 const userHelper = require("./helper/userHelper.js");
 
@@ -25,43 +27,89 @@ const env = process.env;
     env.LOGLEVEL            ??= "INFO";
     env.WIFI_INTERFACE      ??= "wlan0";
     env.HOSTNAME            ??= Os.hostname();
+
+    env.USE_INFLUXDB_LINEPROTOCOL   ??= false;
 }
 // Required vars
-let errorMsg = requireEnvVars([
-    "INFLUX_URL", "INFLUX_TOKEN",
-    "INFLUX_ORG", "INFLUX_BUCKET"
-]);
+let errorMsg = requireEnvVars(
+    env.USE_INFLUXDB_LINEPROTOCOL? [    // When lineprotocol is enabled, we need host and port
+        "INFLUXDB_LINEPROTOCOL_HOST", "INFLUXDB_LINEPROTOCOL_PORT",
+    ] : [       // When its disabled, influxdb-data
+        "INFLUX_URL", "INFLUX_TOKEN",
+        "INFLUX_ORG", "INFLUX_BUCKET"
+    ]);
 if(errorMsg){
     logger.fatal(errorMsg);
     exit(1);
 }
 
 (async function() {
-    logger.info("Setup Influx..");
-    const influxDb = new InfluxDB({url: env.INFLUX_URL, token: env.INFLUX_TOKEN});
+    let pointWriter;
+    if(!env.USE_INFLUXDB_LINEPROTOCOL){
+        logger.info("Setup Influx..");
+        const influxDb = new InfluxDB({url: env.INFLUX_URL, token: env.INFLUX_TOKEN});
 
-    await InfluxChecks.checkHealth(influxDb)
-        .then((res) => {return InfluxChecks.checkBucket(influxDb, {
-            org: env.INFLUX_ORG,
-            name: env.INFLUX_BUCKET
-        });})
-        .then((res) => {return InfluxChecks.checkWriteApi(influxDb, {
-            org: env.INFLUX_ORG,
-            bucket: env.INFLUX_BUCKET
-        });})
-        .catch((err) => {
-            if(err) {
-                logger.error("Error whilst checking influx:");
-                logger.error(err);
-            }
-            logger.fatal("Setup influx failed!");
-            exit(1);
-        });
+        await InfluxChecks.checkHealth(influxDb)
+            .then((res) => {return InfluxChecks.checkBucket(influxDb, {
+                org: env.INFLUX_ORG,
+                name: env.INFLUX_BUCKET
+            });})
+            .then((res) => {return InfluxChecks.checkWriteApi(influxDb, {
+                org: env.INFLUX_ORG,
+                bucket: env.INFLUX_BUCKET
+            });})
+            .catch((err) => {
+                if(err) {
+                    logger.error("Error whilst checking influx:");
+                    logger.error(err);
+                }
+                logger.fatal("Setup influx failed!");
+                exit(1);
+            });
 
-    logger.debug("Get WriteApi & set default-hostname to", `'${env.HOSTNAME}'`);
-    const influxWriteApi = influxDb.getWriteApi(env.INFLUX_ORG, env.INFLUX_BUCKET, "us");
-    //influxWriteApi.useDefaultTags({"hostname": env.HOSTNAME});
-    logger.info("Influx ok");
+        logger.debug("Get WriteApi & set default-hostname to", `'${env.HOSTNAME}'`);
+        const influxWriteApi = influxDb.getWriteApi(env.INFLUX_ORG, env.INFLUX_BUCKET, "us");
+        //influxWriteApi.useDefaultTags({"hostname": env.HOSTNAME});
+
+        pointWriter = new InfluxPointWriter(influxWriteApi);
+
+        logger.info("Influx ok");
+    }
+    else {
+        logger.info("Setup Influxdb-LineProtocol..");
+
+        let lineProtocolWriter = new InfluxDbLineProtocolWriter(env.INFLUXDB_LINEPROTOCOL_HOST, env.INFLUXDB_LINEPROTOCOL_PORT);
+
+        logger.debug("Create PointToLineProto and pipe to LineProtocolWriter");
+        pointWriter = new InfluxPointToLineProtoStream();
+        pointWriter
+            .setEncoding("utf8")
+            .pipe(lineProtocolWriter);
+        
+        logger.debug("Waiting for connection..");
+        await new Promise((resolve, reject) => {
+            lineProtocolWriter.once("connect", () => {
+                resolve();
+            });
+            lineProtocolWriter.once("error", (err) => {
+                reject(err);
+            });
+            setTimeout(() => {  // After timeout, reject promise
+                reject("Timeout whilst waiting to connect");
+            }, 6500);
+        })
+            .then(() => {
+                logger.info("Influxdb-LineProtocol ok");
+            })
+            .catch((err) => {
+                if(err) {
+                    logger.error("Error whilst checking Influxdb-LineProtocol:");
+                    logger.error(err);
+                }
+                logger.fatal("Setup Influxdb-LineProtocol failed!");
+                exit(1);
+            });
+    }
 
     logger.info("Starting tcpdump..");
     const TCPDUMP_BASECMD = "tcpdump -vvv -e -n -X -s0 -i";
@@ -72,19 +120,31 @@ if(errorMsg){
     let regexBlockStream = new RegexBlockStream(/^\d{2}:\d{2}:\d{2}.\d{6}.*(\n( {4,8}|\t\t?).*)+\n/gm);
     let packetStreamFactory = new PacketStreamFactory();
     let packetInfluxPointFactory = new PacketInfluxPointFactory();
-    let influxPointWriter = new InfluxPointWriter(influxWriteApi);
     proc.stdout
         .setEncoding("utf8")
         .pipe(regexBlockStream)
         .pipe(packetStreamFactory)
         .pipe(packetInfluxPointFactory)
-        .pipe(influxPointWriter);
+        .pipe(pointWriter);
 
     logger.debug("Attaching error-logger..");
     const loggerTcpdump = logFactory("tcpdump");
+    let linkTypeId;
     proc.stderr.setEncoding("utf8").on("data", (data) => {
-        if(!data.match(/^(tcpdump: )?listening on /i) || !data.match(/^\d+ packets captured/i)) {  // Catch start-error
+        if(data.match(/^(tcpdump: )?listening on /i) || data.match(/^\d+ packets captured/i)) {  // Catch start-error
             loggerTcpdump.debug(data);
+
+            if(!linkTypeId && data.match(/^(tcpdump: )?listening on/i)){   // Grab first data containing listen-info if proper header was found
+                const linkType = data.match(/((?<=link-type ))([a-z].*?) \(.*?\)(?=,)/i)[0];
+                const linkTypeData = linkType.match(/(\S*) (.*)/i);
+                linkTypeId = linkTypeData[1];
+                const linkTypeDetail = linkTypeData[2];
+    
+                if(linkTypeId !== "IEEE802_11_RADIO"){
+                    logger.error(`Interface not in Monitor-mode! (Expected 'IEEE802_11_RADIO', but got '${linkTypeId}')`);
+                    shutdown(1, "SIGKILL");
+                }
+            }
         }
         else loggerTcpdump.error(data);
     });
@@ -117,17 +177,22 @@ if(errorMsg){
         loggerTcpdump.debug(`tcpdump exited code: ${code}`);
         if (code) {
             loggerTcpdump.fatal(`tcpdump exited with non-zero code: ${code}`);
-            exit(1);
+            if(!exitCode) exitCode = 1;     // When exitCode is 0, set to 1
         }
         logger.info("Shutdown");
-        exit(0);
+        exit(exitCode);
     });
 
     // Handle stop-signals for graceful shutdown
+    var exitCode = 0;
     function shutdownReq() {
         logger.info("Shutdown request received..");
+        shutdown();
+    }
+    function shutdown(code, signal = "SIGTERM"){
+        if(code) exitCode = code;
         logger.debug("Stopping subprocess tcpdump, then exiting myself..");
-        proc.kill();    // Kill process (send SIGTERM), then upper event-handler will stop self
+        proc.kill(signal);    // Kill process, then upper event-handler will stop self
     }
     process.on("SIGTERM", shutdownReq);
     process.on("SIGINT", shutdownReq);
