@@ -21,6 +21,7 @@ class InfluxDbLineProtocolWriter extends net.Socket{
         options.autoConnect     ??= true;
         options.timeout         ??= 5000;
         options.autoReconnect   ??= true;
+        options.autoReconnectBackoffTime    ??= 3000;
         this._options = options;
 
         super.setKeepalive(true, 5000);
@@ -40,7 +41,8 @@ class InfluxDbLineProtocolWriter extends net.Socket{
                 if(!this._autoReconnectTimeout)
                     this._autoReconnectTimeout = setInterval(() => {
                         this.connect();
-                    });
+                    },
+                    this._options.autoReconnectBackoffTime);
             });
         }
 
