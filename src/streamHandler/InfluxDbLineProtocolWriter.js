@@ -53,11 +53,7 @@ class InfluxDbLineProtocolWriter extends net.Socket{
 
     connect(){
         logger.debug("Connecting..");
-        super.connect(this._host, this._port);
-    }
-
-    write(buffer, errorCb){
-        return super.write(buffer, errorCb);
+        super.connect(this._port, this._host);
     }
 }
 
