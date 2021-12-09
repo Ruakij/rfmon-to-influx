@@ -25,12 +25,17 @@ const env = process.env;
     env.LOGLEVEL            ??= "INFO";
     env.WIFI_INTERFACE      ??= "wlan0";
     env.HOSTNAME            ??= Os.hostname();
+
+    env.USE_INFLUXDB_LINEPROTOCOL   ??= false;
 }
 // Required vars
-let errorMsg = requireEnvVars([
-    "INFLUX_URL", "INFLUX_TOKEN",
-    "INFLUX_ORG", "INFLUX_BUCKET"
-]);
+let errorMsg = requireEnvVars(
+    env.USE_INFLUXDB_LINEPROTOCOL? [    // When lineprotocol is enabled, we need host and port
+        "INFLUXDB_LINEPROTOCOL_HOST", "INFLUXDB_LINEPROTOCOL_PORT",
+    ] : [       // When its disabled, influxdb-data
+        "INFLUX_URL", "INFLUX_TOKEN",
+        "INFLUX_ORG", "INFLUX_BUCKET"
+    ]);
 if(errorMsg){
     logger.fatal(errorMsg);
     exit(1);
