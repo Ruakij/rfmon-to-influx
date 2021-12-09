@@ -14,6 +14,7 @@ const { RegexBlockStream } = require("./streamHandler/RegexBlockStream.js");
 const { PacketStreamFactory } = require("./streamHandler/PacketStreamFactory.js");
 const { PacketInfluxPointFactory } = require("./streamHandler/PacketInfluxPointFactory.js");
 const { InfluxPointWriter } = require("./streamHandler/InfluxPointWriter.js");
+const { InfluxDbLineProtocolWriter } = require("./streamHandler/InfluxDbLineProtocolWriter.js");
 
 const userHelper = require("./helper/userHelper.js");
 
@@ -42,31 +43,41 @@ if(errorMsg){
 }
 
 (async function() {
-    logger.info("Setup Influx..");
-    const influxDb = new InfluxDB({url: env.INFLUX_URL, token: env.INFLUX_TOKEN});
+    let pointWriter;
+    if(!env.USE_INFLUXDB_LINEPROTOCOL){
+        logger.info("Setup Influx..");
+        const influxDb = new InfluxDB({url: env.INFLUX_URL, token: env.INFLUX_TOKEN});
 
-    await InfluxChecks.checkHealth(influxDb)
-        .then((res) => {return InfluxChecks.checkBucket(influxDb, {
-            org: env.INFLUX_ORG,
-            name: env.INFLUX_BUCKET
-        });})
-        .then((res) => {return InfluxChecks.checkWriteApi(influxDb, {
-            org: env.INFLUX_ORG,
-            bucket: env.INFLUX_BUCKET
-        });})
-        .catch((err) => {
-            if(err) {
-                logger.error("Error whilst checking influx:");
-                logger.error(err);
-            }
-            logger.fatal("Setup influx failed!");
-            exit(1);
-        });
+        await InfluxChecks.checkHealth(influxDb)
+            .then((res) => {return InfluxChecks.checkBucket(influxDb, {
+                org: env.INFLUX_ORG,
+                name: env.INFLUX_BUCKET
+            });})
+            .then((res) => {return InfluxChecks.checkWriteApi(influxDb, {
+                org: env.INFLUX_ORG,
+                bucket: env.INFLUX_BUCKET
+            });})
+            .catch((err) => {
+                if(err) {
+                    logger.error("Error whilst checking influx:");
+                    logger.error(err);
+                }
+                logger.fatal("Setup influx failed!");
+                exit(1);
+            });
 
-    logger.debug("Get WriteApi & set default-hostname to", `'${env.HOSTNAME}'`);
-    const influxWriteApi = influxDb.getWriteApi(env.INFLUX_ORG, env.INFLUX_BUCKET, "us");
-    //influxWriteApi.useDefaultTags({"hostname": env.HOSTNAME});
-    logger.info("Influx ok");
+        logger.debug("Get WriteApi & set default-hostname to", `'${env.HOSTNAME}'`);
+        const influxWriteApi = influxDb.getWriteApi(env.INFLUX_ORG, env.INFLUX_BUCKET, "us");
+        //influxWriteApi.useDefaultTags({"hostname": env.HOSTNAME});
+
+        pointWriter = new InfluxPointWriter(influxWriteApi);
+
+        logger.info("Influx ok");
+    }
+    else {
+        logger.info("Setup Influxdb-LineProtocol..");
+
+    }
 
     logger.info("Starting tcpdump..");
     const TCPDUMP_BASECMD = "tcpdump -vvv -e -n -X -s0 -i";
