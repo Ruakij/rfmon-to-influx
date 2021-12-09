@@ -27,12 +27,11 @@ Table of contents
     - [3.3. Metric-Details](#33-metric-details)
     - [3.4. Tag-Overview](#34-tag-overview)
     - [3.5. Tag-Details](#35-tag-details)
-- [4. Screenshots](#4-screenshots)
-- [5. Potential Issues](#5-potential-issues)
-    - [5.1. Channel/Frequency](#51-channelfrequency)
-    - [5.2. Technology](#52-technology)
-    - [5.3. Data protection](#53-data-protection)
-    - [5.4. Ethical](#54-ethical)
+- [4. Potential Issues](#4-potential-issues)
+    - [4.1. Channel/Frequency](#41-channelfrequency)
+    - [4.2. Technology](#42-technology)
+    - [4.3. Data protection](#43-data-protection)
+    - [4.4. Ethical](#44-ethical)
 <!-- /TOC -->
 <br>
 
@@ -308,13 +307,9 @@ Unknown             | -     | Unknown packets not identified into above types
 
 <br>
 
-# 4. Screenshots
+# 4. Potential Issues
 
-<br>
-
-# 5. Potential Issues
-
-## 5.1. Channel/Frequency
+## 4.1. Channel/Frequency
 
 The System can only monitor one channel at a time which might not be enough cover,
 to combat this, more Interfaces and Systems can be deployed.
@@ -323,14 +318,14 @@ This is not entirely unproblematic, as the system cannot currently prevent packa
 
 <br>
 
-## 5.2. Technology
+## 4.2. Technology
 
 Mismatches between sender and receiver-technologies (e.g. MIMO or HT) can cause packets not being logged at all.
 Though this should only be a problem for data-packets.
 
 <br>
 
-## 5.3. Data protection
+## 4.3. Data protection
 
 Because the system collects any data, this can be problematic, specially in countries with strong data-protection laws.
 
@@ -338,7 +333,7 @@ A wifi MAC address is likely to be considered as information of an identifiable 
 
 <br>
 
-## 5.4. Ethical
+## 4.4. Ethical
 
 The large-scale collection of data for behavioural or movement analysis, especially without consent of the data subject, is highly controversial.
 
