@@ -47,8 +47,14 @@ class PacketStreamFactory extends Transform{
     }
 
     _transform(chunk, encoding, next){
-        let packet = new Packet();
+        if(!chunk){
+            const err = "Chunk was invalid!";
+            logger.error(err);
+            next(err);
+        }
 
+        let packet = new Packet();
+        
         const lines = chunk.split("\n");
         const header = lines.splice(0, 1)[0];       // Grab first line, "lines" is now the payload
         packet = this._handleHeader(packet, header);
