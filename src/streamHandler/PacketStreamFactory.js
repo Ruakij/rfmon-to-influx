@@ -51,6 +51,7 @@ class PacketStreamFactory extends Transform{
             const err = "Chunk was invalid!";
             logger.error(err);
             next(err);
+            return;
         }
 
         let packet = new Packet();
