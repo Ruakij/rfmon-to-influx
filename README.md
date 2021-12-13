@@ -256,7 +256,7 @@ Variable|Description
 Variable|Default|Description
 ---|---|---
 `LOGLEVEL`          | INFO              | Loglevel
-`WIFI_INTERFACE`    | wlan0             | Token with write-access
+`WIFI_INTERFACE`    | wlan0             | Wifi-Interface name in Monitor-Mode
 ~~`HOSTNAME`~~          | ~~Device's Hostname~~ | ~~Hostname to use as global hostname-tag~~ *(Unused)*
 
 <br>
