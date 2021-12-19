@@ -17,6 +17,7 @@ Table of contents
   - [1.1. What kind of data](#11-what-kind-of-data)
   - [1.2. Data-Usage](#12-data-usage)
   - [1.3. Tools used](#13-tools-used)
+  - [1.4. Architecture](#14-architecture)
 - [2. Usage/Installation](#2-usageinstallation)
   - [2.1. Prerequisites](#21-prerequisites)
   - [2.2. Choosing an Export-Method](#22-choosing-an-export-method)
@@ -80,6 +81,14 @@ e.g.
 
 The program uses `tcpdump` for listening in a subProcess and then extract the metadata when packets arrive.
 
+
+<br>
+
+## 1.4. Architecture
+
+![](docs/img/1.4.architecture.png)
+
+The system heavily uses NodeJS-Streams to read, transform and pass data around.
 
 <br>
 
