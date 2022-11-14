@@ -11,7 +11,7 @@ RUN npm install
 RUN npm prune --production
 
 # Install required apk-packages & delete cache
-RUN apk update && apk add tcpdump && rm -rf /var/cache/apk/*
+RUN apk add --no-cache tcpdump
 
 # Bundle app source
 COPY ./src/ .
