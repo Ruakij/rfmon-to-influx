@@ -14,25 +14,26 @@ Table of contents
 =================
 <!-- TOC -->
 - [1. Description](#1-description)
-    - [1.1. What kind of data](#11-what-kind-of-data)
-    - [1.2. Data-Usage](#12-data-usage)
-    - [1.3. Tools used](#13-tools-used)
+  - [1.1. What kind of data](#11-what-kind-of-data)
+  - [1.2. Data-Usage](#12-data-usage)
+  - [1.3. Tools used](#13-tools-used)
+  - [1.4. Architecture](#14-architecture)
 - [2. Usage/Installation](#2-usageinstallation)
-    - [2.1. Prerequisites](#21-prerequisites)
-    - [2.2. Choosing an Export-Method](#22-choosing-an-export-method)
-    - [2.3. Running with Docker](#23-running-with-docker)
-    - [2.4. Environment-Variables](#24-environment-variables)
+  - [2.1. Prerequisites](#21-prerequisites)
+  - [2.2. Choosing an Export-Method](#22-choosing-an-export-method)
+  - [2.3. Running with Docker](#23-running-with-docker)
+  - [2.4. Environment-Variables](#24-environment-variables)
 - [3. Data collected](#3-data-collected)
-    - [3.1. Data-Types](#31-data-types)
-    - [3.2. Metric-Overview](#32-metric-overview)
-    - [3.3. Metric-Details](#33-metric-details)
-    - [3.4. Tag-Overview](#34-tag-overview)
-    - [3.5. Tag-Details](#35-tag-details)
+  - [3.1. Data-Types](#31-data-types)
+  - [3.2. Metric-Overview](#32-metric-overview)
+  - [3.3. Metric-Details](#33-metric-details)
+  - [3.4. Tag-Overview](#34-tag-overview)
+  - [3.5. Tag-Details](#35-tag-details)
 - [4. Potential Issues](#4-potential-issues)
-    - [4.1. Channel/Frequency](#41-channelfrequency)
-    - [4.2. Technology](#42-technology)
-    - [4.3. Data protection](#43-data-protection)
-    - [4.4. Ethical](#44-ethical)
+  - [4.1. Channel/Frequency](#41-channelfrequency)
+  - [4.2. Technology](#42-technology)
+  - [4.3. Data protection](#43-data-protection)
+  - [4.4. Ethical](#44-ethical)
 <!-- /TOC -->
 <br>
 
@@ -80,6 +81,14 @@ e.g.
 
 The program uses `tcpdump` for listening in a subProcess and then extract the metadata when packets arrive.
 
+
+<br>
+
+## 1.4. Architecture
+
+![](docs/img/1.4.architecture.png)
+
+The system heavily uses NodeJS-Streams to read, transform and pass data around.
 
 <br>
 
@@ -256,7 +265,7 @@ Variable|Description
 Variable|Default|Description
 ---|---|---
 `LOGLEVEL`          | INFO              | Loglevel
-`WIFI_INTERFACE`    | wlan0             | Token with write-access
+`WIFI_INTERFACE`    | wlan0             | Wifi-Interface name in Monitor-Mode
 ~~`HOSTNAME`~~          | ~~Device's Hostname~~ | ~~Hostname to use as global hostname-tag~~ *(Unused)*
 
 <br>
