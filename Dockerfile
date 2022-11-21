@@ -1,18 +1,28 @@
-FROM node:16-alpine
+# ---- Base ----
+FROM alpine:3 AS base
 
 # Create app directory
 WORKDIR /usr/src/app
 
+# Copy project file
+COPY package.json .
+
+# Install required apk-packages
+RUN apk add --no-cache nodejs npm tcpdump
+
+
+# ---- Dependencies ----
+FROM base AS dependencies
+
 # Install app dependencies
-COPY package*.json ./
-RUN npm install
+RUN npm install --only=production
 
-# remove development dependencies
-RUN npm prune --production
 
-# Install required apk-packages & delete cache
-RUN apk update && apk add tcpdump && rm -rf /var/cache/apk/*
+# ---- Release ----
+FROM base AS release
 
+# copy from build image
+COPY --from=dependencies /usr/src/app/ ./
 # Bundle app source
 COPY ./src/ .
 
