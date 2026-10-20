@@ -134,7 +134,7 @@ Thats why the additional LineProtocol-Export-Method was added. Freedom of choice
 
 <br>
 
-If you want to use the InfluxDB-Line-Protocol, simply set the environment variable `USE_INFLUXDB_LINEPROTOCOL` to `true` along with the-other necessary Host and Port-variables.
+If you want to use the InfluxDB-Line-Protocol, simply set the environment variable `USE_INFLUXDB_LINEPROTOCOL` to `true` (`1` and `yes` also work, case-insensitive; anything else or unset selects InfluxDB) along with the-other necessary Host and Port-variables.
 
 <br>
 
@@ -150,13 +150,19 @@ Tags are the full version (`2.1.2`), `major.minor` (`2.1`), `major` (`2`) and `l
 
 <br>
 
-### 2.3.2. Permissions
+### 2.3.2. Upgrading from earlier versions
+
+Up to 2.1.x the line-protocol export was always active, because `USE_INFLUXDB_LINEPROTOCOL` was read as set even when unset or `false`. From 2.2.0 the variable is evaluated, so existing setups that use the line protocol must set `USE_INFLUXDB_LINEPROTOCOL=true`; without it the `INFLUX_*` variables are required.
+
+<br>
+
+### 2.3.3. Permissions
 
 The container must run as **root**, to have permission to listen on the wifi-interface.
 
 <br>
 
-### 2.3.3. docker run
+### 2.3.4. docker run
 
 Either run with docker directly.
 
@@ -171,6 +177,7 @@ docker run
   -e INFLUX_URL="http://influxdb:8086/"
   -e INFLUX_TOKEN="<yourToken>"
   -e INFLUX_ORG="<yourOrganisation>"
+  -e INFLUX_BUCKET="<yourBucket>"
   ghcr.io/ruakij/rfmon-to-influx:2
 ```
 </details>
@@ -192,7 +199,7 @@ docker run
 
 <br>
 
-### 2.3.4. docker-compose
+### 2.3.5. docker-compose
 
 Or use the more preferred way with docker-compose.
 

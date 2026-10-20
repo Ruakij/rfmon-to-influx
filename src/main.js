@@ -22,17 +22,17 @@ const userHelper = require("./helper/userHelper.js");
 
 /// Setup ENVs
 const env = process.env;
+// Environment values are strings, so "false" must not count as enabled
+const useLineProtocol = ["true", "1", "yes"].includes((env.USE_INFLUXDB_LINEPROTOCOL ?? "").trim().toLowerCase());
 // Defaults
 {
     env.LOGLEVEL            ??= "INFO";
     env.WIFI_INTERFACE      ??= "wlan0";
     env.HOSTNAME            ??= Os.hostname();
-
-    env.USE_INFLUXDB_LINEPROTOCOL   ??= false;
 }
 // Required vars
 let errorMsg = requireEnvVars(
-    env.USE_INFLUXDB_LINEPROTOCOL? [    // When lineprotocol is enabled, we need host and port
+    useLineProtocol? [    // When lineprotocol is enabled, we need host and port
         "INFLUXDB_LINEPROTOCOL_HOST", "INFLUXDB_LINEPROTOCOL_PORT",
     ] : [       // When its disabled, influxdb-data
         "INFLUX_URL", "INFLUX_TOKEN",
@@ -45,7 +45,7 @@ if(errorMsg){
 
 (async function() {
     let pointWriter;
-    if(!env.USE_INFLUXDB_LINEPROTOCOL){
+    if(!useLineProtocol){
         logger.info("Setup Influx..");
         const influxDb = new InfluxDB({url: env.INFLUX_URL, token: env.INFLUX_TOKEN});
 

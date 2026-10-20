@@ -61,15 +61,24 @@ jobs:
           tags: rfmon-to-influx:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      # Without configuration the program must start and stop on the missing
-      # variables; that proves node, the dependencies and the entrypoint work.
+      # Without configuration the program must stop on the missing variables of the
+      # selected export method; that proves node, the dependencies and the entrypoint
+      # work, and that USE_INFLUXDB_LINEPROTOCOL selects the method.
       - name: Start the image without configuration
         run: |
-          set +e
-          out=$(docker run --rm rfmon-to-influx:ci 2>&1)
-          status=$?
-          echo "${out}"
-          [ "${status}" -eq 1 ] && grep -q "Required ENV variables are not set" <<<"${out}"
+          expect_missing() {
+            local want=$1; shift
+            local out status
+            set +e
+            out=$(docker run --rm "$@" rfmon-to-influx:ci 2>&1)
+            status=$?
+            set -e
+            echo "${out}"
+            [ "${status}" -eq 1 ] && grep -q "Required ENV variables are not set: .*${want}" <<<"${out}"
+          }
+          expect_missing INFLUX_URL
+          expect_missing INFLUX_URL -e USE_INFLUXDB_LINEPROTOCOL=false
+          expect_missing INFLUXDB_LINEPROTOCOL_HOST -e USE_INFLUXDB_LINEPROTOCOL=true
       - uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: rfmon-to-influx:ci
