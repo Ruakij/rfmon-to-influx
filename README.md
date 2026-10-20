@@ -34,6 +34,7 @@ Table of contents
   - [4.2. Technology](#42-technology)
   - [4.3. Data protection](#43-data-protection)
   - [4.4. Ethical](#44-ethical)
+- [5. Development](#5-development)
 <!-- /TOC -->
 <br>
 
@@ -139,13 +140,23 @@ If you want to use the InfluxDB-Line-Protocol, simply set the environment variab
 
 ## 2.3. Running with Docker
 
-### 2.3.1. Permissions
+### 2.3.1. Image
+
+The image is published to the GitHub Container Registry: `ghcr.io/ruakij/rfmon-to-influx`
+for `linux/amd64`, `linux/arm64` and `linux/arm/v7`.
+Tags are the full version (`2.1.2`), `major.minor` (`2.1`), `major` (`2`) and `latest`.
+
+> **Docker Hub is discontinued.** `ruakij/rfmon-to-influx` on Docker Hub receives no updates anymore and will be removed. Switch to the GHCR image.
+
+<br>
+
+### 2.3.2. Permissions
 
 The container must run as **root**, to have permission to listen on the wifi-interface.
 
 <br>
 
-### 2.3.2. docker run
+### 2.3.3. docker run
 
 Either run with docker directly.
 
@@ -160,7 +171,7 @@ docker run
   -e INFLUX_URL="http://influxdb:8086/"
   -e INFLUX_TOKEN="<yourToken>"
   -e INFLUX_ORG="<yourOrganisation>"
-  ruakij/rfmon-to-influx:2
+  ghcr.io/ruakij/rfmon-to-influx:2
 ```
 </details>
 
@@ -175,13 +186,13 @@ docker run
   -e USE_INFLUXDB_LINEPROTOCOL="true"
   -e INFLUXDB_LINEPROTOCOL_HOST="<host>"
   -e INFLUXDB_LINEPROTOCOL_PORT="<port>"
-  ruakij/rfmon-to-influx:2
+  ghcr.io/ruakij/rfmon-to-influx:2
 ```
 </details>
 
 <br>
 
-### 2.3.3. docker-compose
+### 2.3.4. docker-compose
 
 Or use the more preferred way with docker-compose.
 
@@ -195,7 +206,7 @@ version: '3'
 services:
   rfmon:
     container_name: rfmon
-    image: ruakij/rfmon-to-influx:2
+    image: ghcr.io/ruakij/rfmon-to-influx:2
     restart: unless-stopped
     network_mode: "host"
     environment:
@@ -215,7 +226,7 @@ version: '3'
 services:
   rfmon:
     container_name: rfmon
-    image: ruakij/rfmon-to-influx:2
+    image: ghcr.io/ruakij/rfmon-to-influx:2
     restart: unless-stopped
     network_mode: "host"
     environment:
@@ -417,3 +428,23 @@ The large-scale collection of data for behavioural or movement analysis, especia
 Metadata that can be used to track precise activities, such as wifi data, is very powerful and should only be collected and used when necessary.
 
 If this data falls into the hands of a malicious actor, more precise attacks on the targets could be carried out, such as break-insv, behaviour-based discrimination or more successful phishing.
+
+<br>
+
+# 5. Development
+
+Requires Node.js 24 and Docker.
+
+```sh
+npm ci                 # install dependencies
+npm run check          # syntax check of all sources
+make image             # build the image as rfmon-to-influx:dev
+git config core.hooksPath .githooks   # enable the pre-commit hook
+```
+
+The program needs `tcpdump` and an interface in monitor mode, so it is best started in the container (see [2.3. Running with Docker](#23-running-with-docker)).
+Without configuration it stops with a message naming the missing environment variables.
+
+The image is built from the `Dockerfile` for `linux/amd64`, `linux/arm64` and `linux/arm/v7`.
+Pushing a tag `vX.Y.Z` runs the `release` workflow, which publishes the image to GHCR and creates the GitHub release.
+Tags with a suffix (`v2.2.0-rc.1`) are prereleases and get no `latest` or `major` tags.

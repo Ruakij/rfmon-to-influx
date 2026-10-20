@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+files=$(git diff --cached --name-only --diff-filter=ACM -- 'src/*.js')
+[ -z "$files" ] || echo "$files" | xargs -n1 node --check
+
+# The lock file must satisfy package.json, as the image installs with npm ci.
+if git diff --cached --name-only | grep -q '^package\(-lock\)\?\.json$'; then
+	npm ci --dry-run --ignore-scripts >/dev/null
+fi
