@@ -1,29 +1,25 @@
-# ---- Base ----
-FROM alpine:3 AS base
+# ---- Dependencies ----
+# The dependencies are plain JavaScript, so they are installed on the build
+# platform and a multi-arch build needs no emulation for this stage.
+FROM --platform=$BUILDPLATFORM node:24-alpine AS dependencies
 
-# Create app directory
 WORKDIR /usr/src/app
 
-# Copy project file
-COPY package.json .
-
-# Install required apk-packages
-RUN apk add --no-cache nodejs npm tcpdump
-
-
-# ---- Dependencies ----
-FROM base AS dependencies
-
-# Install app dependencies
-RUN npm install --only=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 
 # ---- Release ----
-FROM base AS release
+# Alpine's own nodejs package, as the official node images have no linux/arm/v7
+# variant. tcpdump captures the packets.
+FROM alpine:3.24 AS release
 
-# copy from build image
-COPY --from=dependencies /usr/src/app/ ./
-# Bundle app source
+WORKDIR /usr/src/app
+
+RUN apk add --no-cache nodejs tcpdump
+
+COPY --from=dependencies /usr/src/app/node_modules ./node_modules
+COPY package.json ./
 COPY ./src/ .
 
-CMD ["npm", "run", "start"]
+CMD ["node", "main.js"]
