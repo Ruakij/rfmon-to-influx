@@ -1,7 +1,7 @@
 # ---- Dependencies ----
 # The dependencies are plain JavaScript, so they are installed on the build
 # platform and a multi-arch build needs no emulation for this stage.
-FROM --platform=$BUILDPLATFORM node:24-alpine AS dependencies
+FROM --platform=$BUILDPLATFORM node:26-alpine AS dependencies
 
 WORKDIR /usr/src/app
 
